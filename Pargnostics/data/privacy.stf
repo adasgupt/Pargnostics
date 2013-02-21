@@ -1,0 +1,19 @@
+4
+ZipCode real
+Age real
+Nationality real
+Condition real
+#Heart disease-10 Viral infection 20 Cancer 30
+#Russian 100 Japanese 200 American 300 Indian 400
+13053	28	100	10
+13068	29	300	10
+13068	21	200	20
+13053	23	300	20
+14853	50	400	30
+14853	55	100	10	
+14850	47	300	20
+14850	49	300	20
+13053	31	300 30
+13053	37	400	30	
+13068	36	200	30 
+13068	35	300	30

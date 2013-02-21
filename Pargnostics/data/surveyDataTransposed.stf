@@ -1,0 +1,32 @@
+14
+a String
+b real
+c real
+d real
+e real
+f real
+g real
+h real
+i real
+j real
+k real
+l real
+m real
+#ReflectanceTransmittanceAbsorptance computed by model 	RTS 3-D	RTS 2-stream 	RTS Beer's law	RTS Albedo	model partitions net radiation into latent & sensible heat	Model simlates ground heat flux 	Canonpy stomatal conductance shaded leaves 	Canonpy stomatal conductance sun leaves	Canonpy stomatal conductance whole canopy	Stomatal conductance scheme Jarvis-type 	Stomatal conductance scheme  Ball Berry	Stomatal conductance connected to photosyn
+CLASSCTEMN	1	0	0	1	1	1	1	1	1	1	0	1	1
+CLM	1	0	1	1	1	1	1	1	1	0	0	1	1
+DLEM	1	0	0	1	1	0	0	1	1	0	0	1	1
+Ecosys	1	1	0	0	0	1	1	1	1	0	0	0	1
+IRCDayCent5	0	0	0	0	0	0	0	0	0	0	0	0	0
+ISAM	1	0	1	0	0	1	1	1	1	0	0	1	1
+JULES	1	0	1	0	0	1	1	1	1	0	0	1	1
+LPJwsl	0	0	0	1	0	0	0	0	0	1	0	0	1
+MC1	0	0	0	0	0	0	0	0	0	0	0	0	0
+ORCHIDEE	1	0	0	0	1	1	1	0	0	0	0	1	1
+SiB3	1	0	1	0	0	1	1	0	0	1	0	1	1
+SiBCASA	1	0	1	0	0	1	1	0	0	1	0	1	1
+SIPNET	1	0	0	1	0	1	0	0	0	1	1	0	1
+TEM	0	0	0	0	0	0	0	0	0	0	0	0	1
+TRIPLEXGHG	1	0	1	0	0	1	1	0	0	1	0	1	1
+VEGAS	1	0	0	1	1	1	1	0	0	0	1	0	0
+VISIT	1	0	0	1	0	0	0	0	0	1	0	1	1
