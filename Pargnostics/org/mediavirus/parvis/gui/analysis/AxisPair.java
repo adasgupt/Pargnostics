@@ -143,6 +143,8 @@ public final class AxisPair {
 
 	private float conditionalEntropyCached = -1;
 	
+	private float jointEntropyCached = -1;
+	
 	private float mutualInformationCached = -1;
 	
 	private int overplottingMedianCached = -1;
@@ -201,17 +203,17 @@ public final class AxisPair {
 			return (int)value;
 	}
 
-	private int globalValue2pixel(float value, boolean firstDimension, boolean inverted, int numBins) {
-		if (firstDimension)
-			value = (value - globalAxisOffset1) * globalScale1;
-		else
-			value = (value - globalAxisOffset2) * globalScale2;
-
-		if (inverted)
-			return numBins - (int) value;
-		else
-			return (int)value;
-	}
+//	private int globalValue2pixel(float value, boolean firstDimension, boolean inverted, int numBins) {
+//		if (firstDimension)
+//			value = (value - globalAxisOffset1) * globalScale1;
+//		else
+//			value = (value - globalAxisOffset2) * globalScale2;
+//
+//		if (inverted)
+//			return numBins - (int) value;
+//		else
+//			return (int)value;
+//	}
 	
 	public ValuePair getNumCrossings(int numBins) {
 
@@ -512,8 +514,8 @@ public final class AxisPair {
 		twoDHistogram = new int[numBins + 1][numBins + 1];
 		
 		for (float row[] : model) {
-			int bin1 = globalValue2pixel(row[dimension1], true, false, numBins);
-			int bin2 = globalValue2pixel(row[dimension2], false, false, numBins);
+			int bin1 = value2pixel(row[dimension1], true, false, numBins);
+			int bin2 = value2pixel(row[dimension2], false, false, numBins);
 			
 			distanceHistogram[bin2 - bin1 + numBins]++;
 			//distanceHistogram_inverted[bin2 - (numBins - bin1) + numBins]++;
@@ -545,7 +547,7 @@ public final class AxisPair {
 
 	}
 
-	public float getConditionalEntropy(int numBins) {
+	public float getJointEntropy(int numBins) {
 
 //		int[] histdim1 = ParallelDisplay.getInstance().getModel().getHistogram(dimension1, numBins);
 
@@ -561,11 +563,13 @@ public final class AxisPair {
 //		double conditionalprobabilityValue = 0;
 		double conditionalEntropy = 0;
 		double logprobabilityValue = 0;
-		float sumConditionalEntropy = 0;
+		double sumConditionalEntropy = 0;
+		double jointEntropy =0;
+		double sumJointEntropy =0;
 
 		if (conditionalEntropyCached < 0) {
 			if (dimension1 > dimension2)
-				conditionalEntropyCached = model.getAxisPair(dimension2, dimension1, parallelDisplay).getConditionalEntropy(numBins);
+				jointEntropyCached = model.getAxisPair(dimension2, dimension1, parallelDisplay).getJointEntropy(numBins);
 			else {
 				for (int i = 0; i < hist2.length; i++) 
 				{
@@ -585,16 +589,20 @@ public final class AxisPair {
 							logprobabilityValue = (Math.log(jointprobabilityValue / probabilityValueDimension2 ))/ LOG_BASE_2;
 							// System.out.println(" *** LOG  *** " +
 							// logprobabilityValue);
-							conditionalEntropy = jointprobabilityValue* logprobabilityValue;
-							sumConditionalEntropy = (float)(sumConditionalEntropy+ conditionalEntropy);
+							jointEntropy = -jointprobabilityValue*logprobabilityValue;
+							
+						
+							sumJointEntropy = (float)(sumJointEntropy+ jointEntropy);
 		
 						}
 					}
 				}
-				conditionalEntropyCached = (float)sumConditionalEntropy;
+				
+				System.err.println("Joint entropy " + sumJointEntropy);
+				jointEntropyCached = (float)sumJointEntropy;
 			}
 		}
-		return conditionalEntropyCached;
+		return jointEntropyCached;
 
 	}
 
@@ -606,7 +614,7 @@ public final class AxisPair {
 				mutualInformation = model.getAxisPair(dimension2, dimension1, parallelDisplay).getMutualInformation(numBins);
 			else {
 				float absoluteEntropy = getAbsoluteEntropy(numBins);
-				float conditionalEntropy = getConditionalEntropy(numBins);
+				float conditionalEntropy = getJointEntropy(numBins);
 				float mutInf = absoluteEntropy - conditionalEntropy;
 				mutualInformation = new ValuePair(mutInf, mutInf);
 			}

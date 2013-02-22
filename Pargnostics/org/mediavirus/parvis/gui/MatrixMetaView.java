@@ -246,8 +246,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		@Override
 		public int compare(AxisPairMetrics m1, AxisPairMetrics m2) {
 
-			float entropy1 =0;
-			float entropy2 =0;
+			float entropy1 = 0;
+			float entropy2 = 0;
 
 			if(sortMode==0)
 
