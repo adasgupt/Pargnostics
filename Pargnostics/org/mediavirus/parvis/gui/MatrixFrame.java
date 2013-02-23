@@ -1,21 +1,25 @@
 package org.mediavirus.parvis.gui;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+
+import org.mediavirus.parvis.gui.MatrixMetaView.MetaMetrics;
 
 public class MatrixFrame  extends JFrame{
 
 	MatrixMetaView matrixView;
-	JRadioButton[] filterButton;
-	JRadioButton[] multiDimButton;
+	JButton[] filterButton;
+	JButton[] multiDimButton;
 
 	public MatrixFrame(MatrixMetaView matrixView){
 
@@ -34,16 +38,16 @@ public class MatrixFrame  extends JFrame{
 		Box filterBox = new Box(BoxLayout.Y_AXIS);
 
 		JLabel filterLabel = new JLabel("Control Uncertainty");
-		filterButton = new JRadioButton[2];
+		filterButton = new JButton[2];
 
-		filterButton[0] = new JRadioButton("Filter by information loss");
-		filterButton[1] = new JRadioButton("Filter by visual complexity");
+		filterButton[0] = new JButton("Filter by information loss");
+		filterButton[1] = new JButton("Filter by visual complexity");
 
 		filterBox.add(filterLabel);
 
 		FilterRadioButtonHandler radiohandler=new FilterRadioButtonHandler();
 		for(int i=0;i<filterButton.length;i++){
-			filterButton[i].addItemListener(radiohandler);
+			filterButton[i].addActionListener(radiohandler);
 			filterBox.add(filterButton[i]);
 		}
 
@@ -52,20 +56,20 @@ public class MatrixFrame  extends JFrame{
 
 		Box multiDimBox = new Box(BoxLayout.Y_AXIS);
 		JLabel multiDimLabel = new JLabel("Build Multi-dimensional Plot");
-		multiDimButton = new JRadioButton[3];
+		multiDimButton = new JButton[3];
 
-		multiDimButton[0] = new JRadioButton("Reduce semantic uncertainty");
-		multiDimButton[1] = new JRadioButton("Reduce visual uncertainty");
-		multiDimButton[2] = new JRadioButton("Reduce both");
+		multiDimButton[0] = new JButton("Reduce semantic uncertainty");
+		multiDimButton[1] = new JButton("Reduce visual uncertainty");
+		multiDimButton[2] = new JButton("Reduce both");
 
 		multiDimBox.add(multiDimLabel);
 
-        JLabel blankLabel = new JLabel("");
-        mainBox.add(blankLabel);
+		JLabel blankLabel = new JLabel("");
+		mainBox.add(blankLabel);
 
 		MultiDimRadioButtonHandler multiDimradiohandler= new MultiDimRadioButtonHandler();
 		for(int i=0;i<multiDimButton.length;i++){
-			multiDimButton[i].addItemListener(multiDimradiohandler);
+			multiDimButton[i].addActionListener(multiDimradiohandler);
 			multiDimBox.add(multiDimButton[i]);
 		}
 
@@ -76,49 +80,51 @@ public class MatrixFrame  extends JFrame{
 
 	}
 
-	private class MultiDimRadioButtonHandler implements ItemListener{
+	private class MultiDimRadioButtonHandler implements ActionListener{
 
-		public void itemStateChanged(ItemEvent e){
 
-			if(e.getSource()== multiDimButton[0] && e.getStateChange()==ItemEvent.SELECTED)
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			if(e.getSource() == multiDimButton[0] )
 			{
-
-
+                matrixView.suggestAxisPairs(MetaMetrics.JointEntropy);
+			//	System.err.println("Reduce semantic uncertainty");
 
 			}
 
-			if(e.getSource()== multiDimButton[1] && e.getStateChange()==ItemEvent.SELECTED)
+			if(e.getSource() == multiDimButton[1] )
 			{
-
-
+                matrixView.suggestAxisPairs(MetaMetrics.ImageEntropy);
+				System.err.println("Reduce visual uncertainty");
 
 			}
 
-			if(e.getSource()== multiDimButton[2] && e.getStateChange()==ItemEvent.SELECTED)
+			if(e.getSource() == multiDimButton[2] )
 			{
 
-
+				matrixView.suggestAxisPairs(MetaMetrics.SumofJointImageEntropy);
+				System.err.println("Reduce both");
 
 			}
-
-
 
 		}
 
 	}
 
-	private class FilterRadioButtonHandler implements ItemListener{
+	private class FilterRadioButtonHandler implements ActionListener{
 
-		public void itemStateChanged(ItemEvent e){
+		public void actionPerformed(ActionEvent e){
 
-			if(e.getSource()==filterButton[0] && e.getStateChange()==ItemEvent.SELECTED)
+			if(e.getSource()==filterButton[0])
 			{
 
 
 
 			}
 
-			if(e.getSource()==filterButton[1] && e.getStateChange()==ItemEvent.SELECTED)
+			if(e.getSource()==filterButton[1])
 			{
 
 

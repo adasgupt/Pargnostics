@@ -42,7 +42,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	/*
 	 * List of axis pairs that are suggested by the system
 	 */
-	ArrayList<AxisPairMetrics> suggestedAxisPairList = new ArrayList<AxisPairMetrics>();
+	ArrayList<AxisPairMetrics> suggestedAxisPairList = null;
 
 	public enum MetaMetrics{
 
@@ -149,13 +149,15 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 						//g.fillRect(arg0, arg1, arg2, arg3)
 					}
 
-					int locX=startX+(scatterInstanceWidth*(col))+(padding*col);
-					int locY=scatterInstanceHeight*row + (padding*row);
+					int locX= startX+(scatterInstanceWidth*(col))+(padding*col);
+					int locY= scatterInstanceHeight*row + (padding*row);
 					//								if(row>col)
 					//								drawScatterplot(g2d, data, scatterInstanceHeight, scatterInstanceWidth, startX, locsX, locsY,row, col);
 					//		
 
-
+                  
+					
+					
 					if(row>col)
 					{
 						Graphics2D g3 = getMetricColor(ig, row, col, 0);
@@ -172,6 +174,23 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 					}
+					
+					 if( suggestedAxisPairList!= null)
+	                   {
+	                	
+	                	   for(int numSuggested =0; numSuggested <5; numSuggested++){
+	                		   
+	                		   int dim1 = suggestedAxisPairList.get(numSuggested).getDimension1();
+	                		   int dim2 = suggestedAxisPairList.get(numSuggested).getDimension2();
+	                		   
+	                		   ig.setColor(Color.red);
+	                		   ig.drawRect(startX+(scatterInstanceWidth*(dim2)+(padding*dim2)), scatterInstanceHeight*(dim1)+(padding*dim1), scatterInstanceWidth-2 , scatterInstanceHeight-2);
+	                		   ig.drawRect(startX+(scatterInstanceWidth*(dim1)+(padding*dim1)), scatterInstanceHeight*(dim2)+(padding*dim2), scatterInstanceWidth-2 , scatterInstanceHeight-2);
+	                	   }
+	                	   
+	                	   
+	                	   
+	                   }
 
 					if (lastClicked == row || lastClicked == col) {
 
@@ -270,7 +289,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			if(metric==MetaMetrics.JointEntropy)
 
 			{
-				System.err.println("Metric joint entropy");
+				//System.err.println("Metric joint entropy");
 				entropy1 = m1.getJointEntropy();
 				entropy2 = m2.getJointEntropy();	
 
@@ -278,13 +297,22 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			else if(metric == MetaMetrics.ImageEntropy)
 			{
 
-				System.err.println("Metric distance entropy");
-				entropy1 = m1.getDistanceEntropy();
-				entropy2 = m2.getDistanceEntropy();
+				//System.err.println("Metric distance entropy");
+				entropy1 = m1.getWeightedColorEntropy();
+				entropy2 = m2.getWeightedColorEntropy();
+
+			}
+			
+			else if(metric == MetaMetrics.SumofJointImageEntropy)
+			{
+
+				//System.err.println("Metric distance entropy");
+				entropy1 = m1.getWeightedColorEntropy()+ m1.getJointEntropy();
+				entropy2 = m2.getDistanceEntropy() + m2.getJointEntropy();;
 
 			}
 
-			System.err.println("Compared " + entropy1 + " "+ entropy2);
+			//	System.err.println("Compared " + entropy1 + " "+ entropy2);
 
 			if(entropy1 < entropy2)
 				return 1;
@@ -298,7 +326,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	public void drawClickedAxes(int axis1, int axis2){
 
-
+       
 		if (lastClicked!=-1 && lastClicked == axis1) {
 			currentAxisList .add(axis2);
 		}
@@ -317,6 +345,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	public void suggestAxisPairs(MetaMetrics selectedMetric){
 
 		Collections.sort(metricsList, new SortMetrics(selectedMetric));
+		suggestedAxisPairList = new ArrayList<AxisPairMetrics>();
 
 		for(AxisPairMetrics am: metricsList)
 		{
@@ -326,21 +355,18 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 			// filtering conditions
 
-			List<Integer> subList = currentAxisList.subList(1,currentAxisList.size()-2);
+			List<Integer> subList = currentAxisList.subList(1, currentAxisList.size()-2);
 
-			if(!subList.contains(dim1)|| !subList.contains(dim2)){
+			if(!subList.contains(dim1)|| !subList.contains(dim2))
+			{
 
 
 				suggestedAxisPairList.add(am);
 
-
-
 			}
-
-
-   }
-
-
+		}
+		
+		repaint();
 	}
 
 

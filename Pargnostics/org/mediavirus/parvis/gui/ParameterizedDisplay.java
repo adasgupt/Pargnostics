@@ -46,6 +46,9 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		private float grayEntropy;
 		private float colorEntropy;
 		private float distanceEntropy;
+		private float weightedGrayEntropy;
+		private float weightedColorEntropy;
+
 		private BufferedImage img;
 
 		public AxisPairMetrics(int dim1, int dim2){
@@ -80,7 +83,14 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			distanceEntropy =de;
 
 		}
+		public void setWeightedGrayEntropy(float de){
+			weightedGrayEntropy =de;
 
+		}
+		public void setWeightedColorEntropy(float de){
+			weightedColorEntropy =de;
+
+		}
 		public float getJointEntropy(){
 			return jointEntropy;
 		}
@@ -95,6 +105,14 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 		public float getDistanceEntropy(){
 			return distanceEntropy;
+		}
+
+		public float getWeightedGrayEntropy(){
+			return weightedGrayEntropy;
+		}
+
+		public float getWeightedColorEntropy(){
+			return weightedColorEntropy;
 		}
 		public void storeImage(BufferedImage bufferImg){
 
@@ -226,7 +244,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 			}
 
-			processMetrics();
+			//processMetrics();
 
 
 			System.err.println("Call count " +callCount);
@@ -623,6 +641,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		metricObject.setDistanceEntropy(computeDistanceEntropy(axis1,axis2));
 		metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
 		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
+		
+		metricObject.setWeightedColorEntropy((((metricObject.getDistanceEntropy()/10))+(1-metricObject.getGrayEntropy()))/2);
 		//setUseColor(true);
 
 
@@ -674,7 +694,6 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 	}
-
 
 
 	@Override
