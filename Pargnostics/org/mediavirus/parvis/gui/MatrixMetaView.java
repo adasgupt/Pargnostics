@@ -29,6 +29,10 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	private int startX;
 	private int stepx;
 	private int padding;
+	
+	private static final int numSuggestedAxisPairs =5;
+	
+	Color[] suggestedPairColors = {new Color(228, 26, 28), new Color(55,126,84), new Color(77,175,74), new Color(152,78,163), new Color(255, 127,0)};
 
 	/*
 	 * For linking with data view and keeping track of what the user selects
@@ -46,7 +50,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	public enum MetaMetrics{
 
-		JointEntropy, ImageEntropy, SumofJointImageEntropy, GrayEntropy, ColorEntropy,
+		JointEntropy, ImageEntropy, SumofJointImageEntropy, GrayEntropy, ColorEntropy, DistanceEntropy
 
 	}
 
@@ -155,9 +159,9 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 					//								drawScatterplot(g2d, data, scatterInstanceHeight, scatterInstanceWidth, startX, locsX, locsY,row, col);
 					//		
 
-                  
-					
-					
+
+
+
 					if(row>col)
 					{
 						Graphics2D g3 = getMetricColor(ig, row, col, 0);
@@ -174,23 +178,25 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 					}
-					
-					 if( suggestedAxisPairList!= null)
-	                   {
-	                	
-	                	   for(int numSuggested =0; numSuggested <5; numSuggested++){
-	                		   
-	                		   int dim1 = suggestedAxisPairList.get(numSuggested).getDimension1();
-	                		   int dim2 = suggestedAxisPairList.get(numSuggested).getDimension2();
-	                		   
-	                		   ig.setColor(Color.red);
-	                		   ig.drawRect(startX+(scatterInstanceWidth*(dim2)+(padding*dim2)), scatterInstanceHeight*(dim1)+(padding*dim1), scatterInstanceWidth-2 , scatterInstanceHeight-2);
-	                		   ig.drawRect(startX+(scatterInstanceWidth*(dim1)+(padding*dim1)), scatterInstanceHeight*(dim2)+(padding*dim2), scatterInstanceWidth-2 , scatterInstanceHeight-2);
-	                	   }
-	                	   
-	                	   
-	                	   
-	                   }
+
+					if( suggestedAxisPairList!= null)
+					{
+
+						for(int numSuggested =0; numSuggested < numSuggestedAxisPairs ; numSuggested++){
+
+							int dim1 = suggestedAxisPairList.get(numSuggested).getDimension1();
+							int dim2 = suggestedAxisPairList.get(numSuggested).getDimension2();
+
+							System.err.println("Suggested  +++++++ "+ dim1 +"  " +dim2);
+
+							ig.setColor(suggestedPairColors[numSuggested]);
+							ig.drawRect(startX+(scatterInstanceWidth*(dim2)+(padding*dim2)), scatterInstanceHeight*(dim1)+(padding*dim1), scatterInstanceWidth-1 , scatterInstanceHeight-1);
+							ig.drawRect(startX+(scatterInstanceWidth*(dim1)+(padding*dim1)), scatterInstanceHeight*(dim2)+(padding*dim2), scatterInstanceWidth-1 , scatterInstanceHeight-1);
+						}
+
+
+
+					}
 
 					if (lastClicked == row || lastClicked == col) {
 
@@ -228,14 +234,20 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			Collections.sort(metricsList, new SortMetrics(MetaMetrics.JointEntropy));
 			for(int index=0; index<metricsList.size(); index++){
 				AxisPairMetrics am = metricsList.get(index);
+
+				/*
+				 * since low joint entropy is good, we color low joint entropy with a stronger hue, to correspond with 
+				 * 'goodness'
+				 */
 				if(am.getDimension1()==row & am.getDimension2()==col)
 				{
 					if(index<=firstQuartile)
-						g2.setColor(colorPattern0[0]);
+						g2.setColor(colorPattern0[2]);
+
 					else if(index>firstQuartile && index <= thirdQuartile)
 						g2.setColor(colorPattern0[1]);
 					else if(index>thirdQuartile)
-						g2.setColor(colorPattern0[2]);
+						g2.setColor(colorPattern0[0]);
 				}
 			}
 		}
@@ -303,12 +315,22 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 			}
 			
+			else if(metric == MetaMetrics.DistanceEntropy)
+			{
+
+				//System.err.println("Metric distance entropy");
+				entropy1 = m1.getDistanceEntropy();
+				entropy2 = m2.getDistanceEntropy();
+
+			}
+
+			//for sorting in response to user selection
 			else if(metric == MetaMetrics.SumofJointImageEntropy)
 			{
 
 				//System.err.println("Metric distance entropy");
 				entropy1 = m1.getWeightedColorEntropy()+ m1.getJointEntropy();
-				entropy2 = m2.getDistanceEntropy() + m2.getJointEntropy();;
+				entropy2 = m2.getWeightedColorEntropy()+ m2.getJointEntropy();;
 
 			}
 
@@ -326,7 +348,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	public void drawClickedAxes(int axis1, int axis2){
 
-       
+
 		if (lastClicked!=-1 && lastClicked == axis1) {
 			currentAxisList .add(axis2);
 		}
@@ -365,7 +387,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 			}
 		}
-		
+
 		repaint();
 	}
 

@@ -368,6 +368,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			double entropy = (probabilityValue * logprobabilityValue);
 
 			sumOfEntropy = sumOfEntropy + entropy;
+			
+		//System.err.println(" Test Entropy    *******  " +sumOfEntropy);
 
 
 		}
@@ -641,12 +643,10 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		metricObject.setDistanceEntropy(computeDistanceEntropy(axis1,axis2));
 		metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
 		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
-		
-		metricObject.setWeightedColorEntropy((((metricObject.getDistanceEntropy()/10))+(1-metricObject.getGrayEntropy()))/2);
+		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
+		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/10)+(2*(1-metricObject.getGrayEntropy())))/3);
 		//setUseColor(true);
 
-
-		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
 		metricObject.storeImage(bufferImg);
 
 
