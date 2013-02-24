@@ -128,6 +128,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	
 	private HashMap<Integer, Float> pixelDataMapPerDimension;
 
+	private MatrixMetaView matrixView;
+
 
 	static {
 		UIManager.put("org.mediavirus.parvis.gui.ParallelDisplayUI", "org.mediavirus.parvis.gui.BasicParallelDisplayUI");
@@ -137,8 +139,9 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	 * Creates a new ParallelDisplay.
 	 * @param controller 
 	 */
-	public ParallelDisplay() {
+	public ParallelDisplay(MatrixMetaView matrixView) {
 		init();
+		this.matrixView = matrixView;
 	}
 	
 	public HashMap<Integer, HashMap<Integer, Float>> getMap(){
@@ -213,6 +216,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		axes[axis1] = axes[axis2];
 		axes[axis2] = temp;
 
+		matrixView.updateCurrentAxes(axes);
 		setupPopup();
 	}
 
@@ -269,7 +273,6 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	 for(int i=0;i<axisList.size();i++)
 	 {
 		 
-		 
 		 axisSetArray[i] = axisList.get(i);
 	 }
 	
@@ -286,6 +289,16 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	 deepRepaint = true;
 	 repaint();	
 	}
+ 
+ //used from the matrix meta view
+ public void updateAxes(Axis[] newAxes){
+	 
+	 axes = newAxes;
+		
+	 deepRepaint = true;
+	 repaint();	
+	 
+ }
 	/**
 	 * Removes an axis from the display.
 	 * 
@@ -308,6 +321,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		axes = newAxes;
 
 		setupPopup();
+		
+		matrixView.updateCurrentAxes(axes);
 
 		deepRepaint = true;
 		repaint();
@@ -350,7 +365,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 			popupMenu.setVisibleAxes(axisNames);
 
 		}
-
+        
+		matrixView.updateCurrentAxes(axes);
 		currentBrush = null;
 
 		deepRepaint = true;

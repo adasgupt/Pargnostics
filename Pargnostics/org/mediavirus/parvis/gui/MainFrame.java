@@ -44,6 +44,7 @@ import org.mediavirus.parvis.model.Brush;
 public class MainFrame extends javax.swing.JFrame implements ProgressListener, BrushListener {
 
 	private static final String WINDOWTITLE = "Pargnostics";
+	MatrixMetaView matrixView;
 
 	/** The name of the file to load on startup. */
 	//private static final String INITIALFILENAME = "data/winequality.stf";
@@ -58,7 +59,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 	 * @param controller */
 	public MainFrame(ParameterizedDisplay parameterizedDisplay, MatrixMetaView matrixView) {
 
-
+        this.matrixView = matrixView;
 		initComponents();
 
 		parallelDisplay.addProgressListener(this);
@@ -132,7 +133,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 		helpMenu = new javax.swing.JMenu();
 		helpItem = new javax.swing.JMenuItem();
 		aboutItem = new javax.swing.JMenuItem();
-		parallelDisplay = new ParallelDisplay();
+		parallelDisplay = new ParallelDisplay(matrixView);
 
 
 		setLayout(new MigLayout("fill", "[grow 0][]", "[]0[]"));

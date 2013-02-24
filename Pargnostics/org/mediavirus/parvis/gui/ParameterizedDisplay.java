@@ -19,6 +19,7 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import org.mediavirus.parvis.gui.MatrixMetaView.SortMetrics;
 import org.mediavirus.parvis.gui.analysis.AxisPair;
 import org.mediavirus.parvis.model.DataSet;
 
@@ -37,7 +38,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 	BufferedWriter bw = null;
 	ParallelDisplay mainDisplay;
 
-	protected static class AxisPairMetrics implements Comparable{
+	protected static class AxisPairMetrics implements Comparable, Cloneable{
 
 		private int axis1;
 		private int axis2;
@@ -231,7 +232,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 				for(int dim2=0; dim2< dim1; dim2++)
 				{
 					callCount++;
-					if(callCount>= 2*totalNumberOfCombinations)
+					if(callCount>= totalNumberOfCombinations)
 						return;
 					else
 					{

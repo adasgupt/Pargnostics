@@ -1,5 +1,6 @@
 package org.mediavirus.parvis.gui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -7,16 +8,19 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
+import org.mediavirus.parvis.gui.ParallelDisplay.Axis;
 import org.mediavirus.parvis.gui.ParameterizedDisplay.AxisPairMetrics;
-import org.mediavirus.parvis.gui.PargnosticsPanel.Views;
 import org.mediavirus.parvis.model.DataSet;
 
 public class MatrixMetaView extends JPanel implements MouseListener, MouseMotionListener{
@@ -29,15 +33,16 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	private int startX;
 	private int stepx;
 	private int padding;
-	
+
 	private static final int numSuggestedAxisPairs =5;
-	
-	Color[] suggestedPairColors = {new Color(228, 26, 28), new Color(55,126,84), new Color(77,175,74), new Color(152,78,163), new Color(255, 127,0)};
+
+
+	Color[] suggestedPairColors = {new Color(255, 255, 178), new Color(254, 204, 92), new Color(253, 141, 60), new Color( 240, 59, 32), new Color(189, 0, 38)};
 
 	/*
 	 * For linking with data view and keeping track of what the user selects
 	 */
-	List<Integer> currentAxisList =new ArrayList<Integer>();
+	List<Integer> currentAxisList = new ArrayList<Integer>();;
 	/*
 	 * List of all axis pair objects
 	 */
@@ -187,9 +192,10 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 							int dim1 = suggestedAxisPairList.get(numSuggested).getDimension1();
 							int dim2 = suggestedAxisPairList.get(numSuggested).getDimension2();
 
-							System.err.println("Suggested  +++++++ "+ dim1 +"  " +dim2);
+							//	System.err.println("Suggested  +++++++ "+ dim1 +"  " +dim2);
 
 							ig.setColor(suggestedPairColors[numSuggested]);
+							ig.setStroke(new BasicStroke(4));
 							ig.drawRect(startX+(scatterInstanceWidth*(dim2)+(padding*dim2)), scatterInstanceHeight*(dim1)+(padding*dim1), scatterInstanceWidth-1 , scatterInstanceHeight-1);
 							ig.drawRect(startX+(scatterInstanceWidth*(dim1)+(padding*dim1)), scatterInstanceHeight*(dim2)+(padding*dim2), scatterInstanceWidth-1 , scatterInstanceHeight-1);
 						}
@@ -198,6 +204,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 					}
 
+					ig.setStroke(new BasicStroke(1));
 					if (lastClicked == row || lastClicked == col) {
 
 						ig.setColor(new Color(160, 40, 30, 100));
@@ -314,7 +321,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 				entropy2 = m2.getWeightedColorEntropy();
 
 			}
-			
+
 			else if(metric == MetaMetrics.DistanceEntropy)
 			{
 
@@ -349,8 +356,9 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	public void drawClickedAxes(int axis1, int axis2){
 
 
+
 		if (lastClicked!=-1 && lastClicked == axis1) {
-			currentAxisList .add(axis2);
+			currentAxisList.add(axis2);
 		}
 
 		if (lastClicked != axis1) {
@@ -360,14 +368,61 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 		lastClicked = currentAxisList.get(currentAxisList .size()-1);
 		repaint();
-		parallelDisplay.addAxesToDraw(currentAxisList );
+		addAxesToDraw(currentAxisList);
+		removeAxisPairMetricObjects(currentAxisList);
 	}
 
 
+	/**
+	 * TODO Removes the drawn axis from the axispairmetrics list for consideration for further sorting.
+	 *
+	 * @param currentAxisList
+	 */
+	private void removeAxisPairMetricObjects(List<Integer> currentAxisList) {
+
+		for(AxisPairMetrics am: metricsList){
+
+			int axis1 = am.getDimension1();
+			int axis2 = am.getDimension2();
+
+			for(int index=0; index<currentAxisList.size()-1; index++)
+			{
+
+				if((currentAxisList.get(index)== axis1 && currentAxisList.get(index+1)== axis2)||(currentAxisList.get(index)== axis2 && currentAxisList.get(index+1)== axis1))
+				{
+
+					metricsList.remove(am);
+					System.err.println(" Removed  ----------------  " +axis1 + " axis1"+ "  " + "axis2" +" " +axis2);
+
+				}
+
+			}
+		}
+
+
+	}
+
 	public void suggestAxisPairs(MetaMetrics selectedMetric){
 
+
 		Collections.sort(metricsList, new SortMetrics(selectedMetric));
+
+
+		//instantiate suggested list
 		suggestedAxisPairList = new ArrayList<AxisPairMetrics>();
+
+		// sublist for selecting axis pairs, we want to include the first and last axes but not the intermediate ones
+		List<Integer> subList = new ArrayList<Integer>();
+
+		//local copy of all axis pair objects list to prevent concurrent modification
+		//ArrayList<AxisPairMetrics> copyOfMetricsList = new ArrayList<AxisPairMetrics>();
+
+		//		for(AxisPairMetrics am:metricsList)
+		//		{
+		//
+		//			copyOfMetricsList.add(am);
+		//
+		//		}
 
 		for(AxisPairMetrics am: metricsList)
 		{
@@ -376,21 +431,68 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			int dim2 = am.getDimension2();
 
 			// filtering conditions
-
-			List<Integer> subList = currentAxisList.subList(1, currentAxisList.size()-2);
-
-			if(!subList.contains(dim1)|| !subList.contains(dim2))
+			if(!currentAxisList.isEmpty())
 			{
+				int lastElementPosition = currentAxisList.size()-1;
+				subList = currentAxisList.subList(1, lastElementPosition);
+				if((!subList.contains(dim1)|| !subList.contains(dim2))&& 
+						(dim1==currentAxisList.get(0)||dim1==currentAxisList.get(currentAxisList.size()-1)||dim2==currentAxisList.get(0)||dim2==currentAxisList.get(currentAxisList.size()-1)))
+				{
 
+					suggestedAxisPairList.add(am);
+					System.err.println("Suggested 1  " +dim1 + " Suggested 2  "+dim2);
+					//	copyOfMetricsList.remove(am);
 
-				suggestedAxisPairList.add(am);
-
+				}
 			}
+			else
+				suggestedAxisPairList.add(am);
+			//	copyOfMetricsList.remove(am);
 		}
+
+		//	metricsList = copyOfMetricsList;
 
 		repaint();
 	}
 
+	public void updateCurrentAxes(Axis currentAxes[]){
+		
+		List<Integer> updatedAxesList = new ArrayList<Integer>();
+		
+		for(int pos=0; pos<currentAxes.length; pos++)
+		{
+			int dim =currentAxes[pos].dimension;
+			updatedAxesList.add(dim);
+			
+		}
+		
+		currentAxisList = updatedAxesList;
+
+
+	}
+
+
+	public void addAxesToDraw(List<Integer> axisList) {
+
+		Axis newAxes[] = new Axis[axisList.size()];
+		Integer axisSetArray[]=new Integer[axisList.size()];
+
+		for(int i=0;i<axisList.size();i++)
+		{
+
+			axisSetArray[i] = axisList.get(i);
+		}
+
+		for(int i=0; i<axisSetArray.length ;i++)
+		{
+			int axis1=axisSetArray[i];
+			Axis newAxis1 = parallelDisplay.new Axis(axis1, data.getMinValue(axis1) - data.getMaxValue(axis1), data.getMaxValue(axis1), data.getAxisLabel(axis1));
+			newAxes[i]= newAxis1;
+
+		}
+
+		parallelDisplay.updateAxes(newAxes);
+	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
