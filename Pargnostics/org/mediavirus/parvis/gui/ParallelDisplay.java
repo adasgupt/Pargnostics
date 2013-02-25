@@ -366,7 +366,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 
 		}
         
-		matrixView.updateCurrentAxes(axes);
+	//	matrixView.updateCurrentAxes(axes);
 		currentBrush = null;
 
 		deepRepaint = true;

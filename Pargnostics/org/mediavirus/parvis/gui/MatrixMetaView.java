@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -40,9 +41,14 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	Color[] suggestedPairColors = {new Color(255, 255, 178), new Color(254, 204, 92), new Color(253, 141, 60), new Color( 240, 59, 32), new Color(189, 0, 38)};
 
 	/*
+	 * For linking with data view and keeping track of what is drawn in the main view
+	 */
+	List<Integer> currentDrawnList = new ArrayList<Integer>();
+
+	/*
 	 * For linking with data view and keeping track of what the user selects
 	 */
-	List<Integer> currentAxisList = new ArrayList<Integer>();;
+    List<Integer> selectedAxesList = null;
 	/*
 	 * List of all axis pair objects
 	 */
@@ -68,6 +74,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	ParameterizedDisplay parameterizedDisplay;
 	DataSet data;
 	private int numDimensions;
+	private int numSelected;
 
 	public MatrixMetaView(){
 
@@ -81,6 +88,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		this.parallelDisplay = parallelDisplay;
 		this.data = data;
 		this.parameterizedDisplay = parameterizedDisplay;
+		currentDrawnList = getListFromAxes(parallelDisplay.axes);
 
 
 	}
@@ -210,7 +218,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 						ig.setColor(new Color(160, 40, 30, 100));
 						ig.fillRect( locX, locY, scatterInstanceWidth, scatterInstanceHeight);
 
-						System.err.println("Yes clicked");
+						//	System.err.println("Yes clicked");
 
 					}
 				}
@@ -355,21 +363,22 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	public void drawClickedAxes(int axis1, int axis2){
 
-
+		selectedAxesList = new ArrayList<Integer>();
 
 		if (lastClicked!=-1 && lastClicked == axis1) {
-			currentAxisList.add(axis2);
+			selectedAxesList.add(axis2);
 		}
 
 		if (lastClicked != axis1) {
-			currentAxisList .add(axis1);
-			currentAxisList .add(axis2);
+			selectedAxesList .add(axis1);
+			selectedAxesList .add(axis2);
 		}
 
-		lastClicked = currentAxisList.get(currentAxisList .size()-1);
+		lastClicked = selectedAxesList.get(selectedAxesList .size()-1);
 		repaint();
-		addAxesToDraw(currentAxisList);
-		removeAxisPairMetricObjects(currentAxisList);
+		addAxesToDraw(selectedAxesList);
+		removeAxisPairMetricObjects(selectedAxesList);
+
 	}
 
 
@@ -431,16 +440,16 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			int dim2 = am.getDimension2();
 
 			// filtering conditions
-			if(!currentAxisList.isEmpty())
+			if(selectedAxesList!=null)
 			{
-				int lastElementPosition = currentAxisList.size()-1;
-				subList = currentAxisList.subList(1, lastElementPosition);
+				int lastElementPosition = currentDrawnList.size()-1;
+				subList = currentDrawnList.subList(1, lastElementPosition);
 				if((!subList.contains(dim1)|| !subList.contains(dim2))&& 
-						(dim1==currentAxisList.get(0)||dim1==currentAxisList.get(currentAxisList.size()-1)||dim2==currentAxisList.get(0)||dim2==currentAxisList.get(currentAxisList.size()-1)))
+						(dim1==currentDrawnList.get(0)||dim1==currentDrawnList.get(currentDrawnList.size()-1)||dim2==currentDrawnList.get(0)||dim2==currentDrawnList.get(currentDrawnList.size()-1)))
 				{
 
 					suggestedAxisPairList.add(am);
-					System.err.println("Suggested 1  " +dim1 + " Suggested 2  "+dim2);
+					//	System.err.println("Suggested 1  " +dim1 + " Suggested 2  "+dim2);
 					//	copyOfMetricsList.remove(am);
 
 				}
@@ -455,24 +464,143 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		repaint();
 	}
 
+	//from mainview to matrix view:updates axes list according to what is drawn in the main view
+
 	public void updateCurrentAxes(Axis currentAxes[]){
-		
+
+		List<Integer> updatedAxesList = getListFromAxes(currentAxes);
+
+		currentDrawnList = updatedAxesList;
+
+
+	}
+
+	//wrapper function to convert from Axis to integer dimensions 
+	public List<Integer> getListFromAxes(Axis currentAxes[]){
+
 		List<Integer> updatedAxesList = new ArrayList<Integer>();
-		
+
 		for(int pos=0; pos<currentAxes.length; pos++)
 		{
 			int dim =currentAxes[pos].dimension;
 			updatedAxesList.add(dim);
-			
+
 		}
-		
-		currentAxisList = updatedAxesList;
+
+		return updatedAxesList;
+
+	}
+
+	/*
+	 * from matrix view to main view: the linking function that draws axes in the main view
+	 */
+	public void addAxesToDraw(List<Integer> userSelectedAxisList) {
+
+        numSelected++;
+		Axis[] currentAxes = getAxesFromList(currentDrawnList);
+		Integer[] currentAxesArray = new Integer[currentDrawnList.size()+1];
+		currentAxesArray= currentDrawnList.toArray(currentAxesArray);
+
+
+
+		int firstAxis = userSelectedAxisList.get(0);
+		int lastAxis =  userSelectedAxisList.get(userSelectedAxisList.size()-1);
+
+
+		System.err.println("First axis  " +firstAxis);
+		System.err.println("Last axis  " + lastAxis);
+
+		if(numSelected==1)
+			currentDrawnList =userSelectedAxisList;
+
+		//		if(userSelectedAxisList.size()>2)
+		//		{
+
+		System.err.println(" current drawn list first " +currentDrawnList.get(0));
+		System.err.println(" current drawn list last " +currentDrawnList.get(currentDrawnList.size()-1));
+
+
+
+		if(currentAxesArray[0] == firstAxis){
+
+			System.err.println(" First time *************************** 1 ");
+			//currentDrawnList.add(lastAxis);
+			int x = lastAxis;
+
+			for(int i= currentAxesArray.length-1; i>0; i--)
+			{
+
+				currentAxesArray[i] = currentAxesArray[i-1];
+
+
+
+
+			}
+			currentAxesArray[0]= x;
+			currentDrawnList =Arrays.asList(currentAxesArray);
+
+
+		}
+
+		else if(currentAxesArray[0] == lastAxis){
+
+			System.err.println(" Second time *************************** 2 ");
+			//currentDrawnList.add(firstAxis);
+			int x = firstAxis;
+
+			for(int i= currentAxesArray.length-1; i>0; i--)
+			{
+
+				currentAxesArray[i] = currentAxesArray[i-1];
+
+
+
+
+			}
+			currentAxesArray[0]= x;
+			currentDrawnList =Arrays.asList(currentAxesArray);
+
+
+		}
+
+
+		else if(currentAxesArray[currentAxesArray.length-2] == lastAxis){
+			currentAxesArray[currentAxesArray.length-1] = firstAxis;
+			currentDrawnList =Arrays.asList(currentAxesArray);
+			System.err.println(" Second time *************************** 3 ");
+
+
+		}
+
+		else if(currentAxesArray[currentAxesArray.length-2]== firstAxis){
+			System.err.println(" Second time *************************** 4 ");
+			currentAxesArray[currentAxesArray.length-1] = lastAxis;
+			currentDrawnList =Arrays.asList(currentAxesArray);
+
+		}
+
+
+		Axis[] newAxes = getAxesFromList(currentDrawnList);
+		updateCurrentAxes(newAxes);
+		parallelDisplay.updateAxes(newAxes);
+
+
+		//	}
+		//		else{
+		//
+		//			Axis[] newAxes = getAxesFromList(userSelectedAxisList);
+		//			updateCurrentAxes(newAxes);
+		//			parallelDisplay.updateAxes(newAxes);
+		//
+		//
+		//
+		//		}
 
 
 	}
 
 
-	public void addAxesToDraw(List<Integer> axisList) {
+	public Axis[] getAxesFromList(List<Integer> axisList){
 
 		Axis newAxes[] = new Axis[axisList.size()];
 		Integer axisSetArray[]=new Integer[axisList.size()];
@@ -485,15 +613,13 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 		for(int i=0; i<axisSetArray.length ;i++)
 		{
-			int axis1=axisSetArray[i];
+			int axis1 = axisSetArray[i];
 			Axis newAxis1 = parallelDisplay.new Axis(axis1, data.getMinValue(axis1) - data.getMaxValue(axis1), data.getMaxValue(axis1), data.getAxisLabel(axis1));
 			newAxes[i]= newAxis1;
 
 		}
-
-		parallelDisplay.updateAxes(newAxes);
+		return newAxes;
 	}
-
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub.

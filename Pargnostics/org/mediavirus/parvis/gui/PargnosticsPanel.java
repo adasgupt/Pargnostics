@@ -554,7 +554,7 @@ class PargnosticsPanel extends JPanel implements MouseListener,MouseMotionListen
 			g2d.setColor(Color.LIGHT_GRAY);
 			g2d.fillRect( locX, locY, scatterInstanceWidth, scatterInstanceHeight);
 
-			System.err.println("Yes clicked");
+		//	System.err.println("Yes clicked");
 
 		}
 
