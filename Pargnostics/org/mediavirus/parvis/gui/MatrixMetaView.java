@@ -383,7 +383,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 	/**
-	 * TODO Removes the drawn axis from the axispairmetrics list for consideration for further sorting.
+	 * Removes the drawn axis from the axispairmetrics list for consideration for further sorting.
 	 *
 	 * @param currentAxisList
 	 */

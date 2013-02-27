@@ -58,9 +58,9 @@ public class MatrixFrame  extends JFrame{
 		JLabel multiDimLabel = new JLabel("Build Multi-dimensional Plot");
 		multiDimButton = new JButton[3];
 
-		multiDimButton[0] = new JButton("Reduce semantic uncertainty");
-		multiDimButton[1] = new JButton("Reduce visual uncertainty");
-		multiDimButton[2] = new JButton("Reduce both");
+		multiDimButton[0] = new JButton("Maximize information content");
+		multiDimButton[1] = new JButton("Maximize visual saliency");
+		multiDimButton[2] = new JButton("Maximize both");
 
 		multiDimBox.add(multiDimLabel);
 
