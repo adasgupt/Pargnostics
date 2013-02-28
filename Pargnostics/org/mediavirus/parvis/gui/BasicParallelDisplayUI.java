@@ -778,11 +778,13 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 	 protected Color getRecordColor(float point1, float point2, int numBins){
 
 			
+           float val = point1+point2;
+           if(val<0)
+        	   val= val*(-1);
 
-
-			float norm = (float)((point1/(float)numBins));
+			float norm = (float)(((val)/(float)(2*numBins)));
 			float mult[] = {RECORD_COLOR_HIGH[0] * norm + RECORD_COLOR_LOW[0]*(1-norm), RECORD_COLOR_HIGH[1] * norm + RECORD_COLOR_LOW[1]*(1-norm), 
-					RECORD_COLOR_HIGH[2] * norm + RECORD_COLOR_LOW[2]*(1-norm), 0.2f};
+					RECORD_COLOR_HIGH[2] * norm + RECORD_COLOR_LOW[2]*(1-norm), 0.4f};
 
             Color color = new Color(mult[0], mult[1], mult[2]);
 

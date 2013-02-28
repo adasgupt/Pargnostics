@@ -66,7 +66,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 		parallelDisplay.addBrushListener(this);
 
 		parameterizedDisplay.initialize(parallelDisplay.getModel(), parallelDisplay);
-		matrixView.initialize(parallelDisplay.getModel(), parallelDisplay, parameterizedDisplay);
+		//matrixView.initialize(parallelDisplay.getModel(), parallelDisplay, parameterizedDisplay);
 
 		//         for(BufferedImage img: p.getBufferedImageList())
 		//			

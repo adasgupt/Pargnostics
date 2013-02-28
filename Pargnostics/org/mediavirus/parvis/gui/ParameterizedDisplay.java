@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,7 +29,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 	/*
 	 *  Parameters that control the computation of metrics-width, height of screen
 	 */
-	Point2D.Float param = new Point2D.Float(200, 800);
+	Point2D.Float param = new Point2D.Float(500, 500);
 	DataSet data = null;
 	//private BufferedImage[] imgArray;
 
@@ -237,7 +238,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 					else
 					{
 
-						drawParallelCoordinatesplot(g2, data, dim1, dim2);
+						drawScatterplot(g2, data, dim1, dim2);
 
 
 					}
@@ -253,20 +254,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		}
 		else 
 			return;
-		/*
-		 * Verify by copying and saving the image.
-		 */
-
-		//				try {
-		//					// retrieve image
-		//		
-		//					File outputfile = new File("saved2.png");
-		//					ImageIO.write(bufferImg, "png", outputfile);
-		//				} catch (IOException e) {
-		//		
-		//				}
-
-
+	
 
 	}
 
@@ -542,38 +530,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 
-	private void drawScatterPlots(Graphics g, int i) {
-		Graphics2D ig = (Graphics2D)g;
-		Graphics2D g2 = (Graphics2D)g;
-
-		int w = this.getWidth();
-
-		int h = this.getHeight();
-
-		BufferedImage bufferImg = new BufferedImage(this.getWidth(), this.getHeight(),BufferedImage.TYPE_4BYTE_ABGR);
-		bufferImg = (BufferedImage)(this.createImage(w, h));
-
-
-
-		//setting up the BufferedImage properties
-		ig = bufferImg.createGraphics();
-		ig.setColor(this.getBackground());
-		ig.fillRect(0, 0, this.getWidth(), this.getHeight());
-
-
-
-		ig.setColor(new Color(3*i, 4*i , 2*i));
-
-		ig.fillRect(i,  20, i, 349);
-
-
-
-		//storing the BufferedImage
-		g2.drawImage(bufferImg, null, 0, 0);
-		//imgArray[i]= bufferImg;
-
-	}
-
+	
 	private void drawParallelCoordinatesplot(Graphics g,DataSet data, int axis1, int axis2){
 
 		//float axisOffset1 = parallelDisplay.getAxisOffset(axis1);
@@ -680,6 +637,121 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		//		} catch (IOException e) {
 		//
 		//		}
+
+
+		//System.err.println("Images created");
+
+	}
+	
+	private void drawScatterplot(Graphics g,DataSet data, int axis1, int axis2){
+
+		//float axisOffset1 = parallelDisplay.getAxisOffset(axis1);
+		//float axisOffset2 = parallelDisplay.getAxisOffset(axis2);
+		//float scale1 = parallelDisplay.getAxisScale(axis1);
+		//float scale2 = parallelDisplay.getAxisScale(axis2);
+		Graphics2D ig = (Graphics2D)g;
+		Graphics2D g2 = (Graphics2D)g;
+
+
+		String[] dimNamesArray = new String[2];
+
+		int w = this.getWidth();
+
+		int h = this.getHeight();
+
+		BufferedImage bufferImg = new BufferedImage(this.getWidth(), this.getHeight(),BufferedImage.TYPE_4BYTE_ABGR);
+		bufferImg = (BufferedImage)(this.createImage(w, h));
+
+
+
+		//setting up the BufferedImage properties
+		ig = bufferImg.createGraphics();
+		ig.setColor(this.getBackground());
+		ig.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+		float scale1 = (data.getMaxValue(axis1) - data.getMinValue(axis1));
+		float scale2 = (data.getMaxValue(axis2) - data.getMinValue(axis2));
+		float axisOffset1 = data.getMinValue(axis1);
+		float axisOffset2 = data.getMinValue(axis2);
+
+		//Color code background for Crossings:Low medium and high
+		//		if(filterFlag !=-1)
+		//		{
+		//			float val = getFilteredValue( axis1, axis2 );
+		//
+		//			//Color code backgorund for Crossings:Low medium and high
+		//			Color backGroundColor = getColor(val);
+		//
+		//
+		//			g2d.setColor(backGroundColor);
+		//			g2d.fillRect( locX, locY, scatterInstanceWidth, scatterInstanceHeight);
+		//
+		//		}
+
+		ig.setColor(new Color(0,0,0));
+         ig.drawLine(0, 0, 0, (int)param.y);
+         ig.drawLine(0, (int)param.y, (int)param.x, (int)param.y);
+
+		/*
+		 * the loop for rendering all the lines in parallel coordinates
+		 */
+		for(float[]dataRow : data){
+
+			int v1 = (int)((dataRow[axis1] - axisOffset1) * (param.x) / scale1);
+			int v2 = (int)((dataRow[axis2] - axisOffset2) * (param.y) / scale2);
+//			if(useColor)
+//				ig.setColor(getRecordColor(v1,v2, (int)param.y));
+//			else
+				ig.setColor(new Color(0,0,0));
+			
+			ig.drawLine((int)(v1), (int)(param.y-v2), (int)(v1)+2,(int)(param.y-v2)+2);	
+			//ig.drawOval((int)(param.x-v1), (int)(param.y-v2), 4, 4);
+		}
+
+		g2.drawImage(bufferImg, null, 0, 0);
+		imageList.add(bufferImg);
+
+		AxisPairMetrics metricObject = new AxisPairMetrics(axis1, axis2);
+
+		metricObject.setDistanceEntropy(computeDistanceEntropy(axis1,axis2));
+		metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
+		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
+		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
+		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/10)+(2*(1-metricObject.getGrayEntropy())))/3);
+		//setUseColor(true);
+
+		metricObject.storeImage(bufferImg);
+
+
+		metricsList.add(metricObject);
+
+
+		/*
+		 * Verify by copying and saving the image.
+		 */
+
+
+
+
+		//output to the file a line
+
+
+
+				try {
+					// retrieve image
+		
+					File outputfile = new File("saved" + axis1+axis2 + ".png");
+					ImageIO.write(bufferImg, "png", outputfile);
+		
+					//            double entropy = computeEntropy(bufferImg);
+					//            String text= " "+entropy;
+					//            bw.write(text);
+					//            
+					//            System.err.println("Entropy " +entropy);
+		
+				} catch (IOException e) {
+		
+				}
 
 
 		//System.err.println("Images created");
