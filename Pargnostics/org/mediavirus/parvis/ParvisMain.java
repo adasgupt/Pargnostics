@@ -56,7 +56,7 @@ public class ParvisMain{
         MatrixFrame matrixFrame = new MatrixFrame(matrixView);
        
         
-        metaFrame.setSize(1000, 1000);
+        metaFrame.setSize(500, 500);
         metaFrame.add(paramDisplay);
         metaFrame.setVisible(true);
         
