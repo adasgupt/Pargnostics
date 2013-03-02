@@ -26,6 +26,8 @@ import org.mediavirus.parvis.gui.analysis.AxisPair;
 import org.mediavirus.parvis.model.DataSet;
 
 public class ParameterizedDisplay extends JPanel implements MouseListener, MouseMotionListener {
+	
+
 
 	/*
 	 *  Parameters that control the computation of metrics-width, height of screen
@@ -51,6 +53,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		private float distanceEntropy;
 		private float weightedGrayEntropy;
 		private float weightedColorEntropy;
+		private float klDiv;
 
 		private BufferedImage img;
 
@@ -117,6 +120,18 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		public float getWeightedColorEntropy(){
 			return weightedColorEntropy;
 		}
+		
+		
+		
+		public void setKLDivergence(float kld){
+			klDiv = kld;
+		}
+		
+		public float getKLDivergence(){
+			return klDiv;
+		}
+
+		
 		public void storeImage(BufferedImage bufferImg){
 
 			img = bufferImg;
@@ -240,7 +255,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 					{
 
 						drawScatterplot(g2, data, dim1, dim2);
-
+						drawParallelCoordinatesplot(g2, data, dim1, dim2);
 
 					}
 				}
@@ -606,6 +621,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
 		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
 		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/10)+(2*(1-metricObject.getGrayEntropy())))/3);
+		metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
+		
 		//setUseColor(true);
 
 		metricObject.storeImage(bufferImg);
@@ -759,6 +776,52 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 		//System.err.println("Images created");
 
+	}
+	
+	public float getKLDivergence(int axis1, int axis2){
+		
+		int numPixelBins = (int)param.y;
+		int numDataBins = data.getNumRecords();
+		int[][] imageHist= data.get2DHistogram(axis1, axis2, (int)param.y);
+		int[][] dataHist = data.get2DHistogram(axis1, axis2, data.getNumRecords());
+		
+		
+		float[] imageProbabilityArray = new float[data.getValues().size()];
+		float[] dataProbabilityArray =  new float[data.getValues().size()];
+		
+		for(int recordNum=0; recordNum<data.getValues().size(); recordNum++)
+		{
+			float val1 = data.getValues().get(recordNum)[axis1];
+			float val2 = data.getValues().get(recordNum)[axis2];
+			val1 = val1 - data.getMinValue(axis1);
+			val2 = val2 - data.getMinValue(axis2);
+			
+			int pixelbin1 = (int) (numPixelBins * (val1 / (data.getMaxValue(axis1)-data.getMinValue(axis1))));
+			int pixelbin2 = (int) (numPixelBins * (val2 / (data.getMaxValue(axis2)-data.getMinValue(axis2))));
+			
+			int databin1 = (int) (numDataBins * (val1 / (data.getMaxValue(axis1)-data.getMinValue(axis1))));
+			int databin2 = (int) (numDataBins * (val2 / (data.getMaxValue(axis2)-data.getMinValue(axis2))));
+			
+			imageProbabilityArray[recordNum] = imageHist[pixelbin1][pixelbin2]/(float)(imageHist.length);
+			dataProbabilityArray[recordNum] =  dataHist[databin1][databin2]/(float)(dataHist.length);
+			
+			
+		}
+		
+		
+		float klDiv = 0f;
+
+	      for (int i = 0; i < 	imageProbabilityArray.length; ++i) {
+	        if (imageProbabilityArray[i] == 0) { continue; }
+	        if (dataProbabilityArray[i] == 0.0) { continue; } 
+
+	      klDiv += imageProbabilityArray[i] * Math.log( imageProbabilityArray[i] / dataProbabilityArray[i] );
+	      }
+
+	      System.err.println(" KLDiv    *********************  " +klDiv);
+	      klDiv= (float)(klDiv/LOG_BASE_2);
+		
+	    return klDiv;
 	}
 
 	public ArrayList<BufferedImage> getBufferedImageList(){
