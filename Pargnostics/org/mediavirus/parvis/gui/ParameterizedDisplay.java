@@ -254,7 +254,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 					else
 					{
 
-						drawScatterplot(g2, data, dim1, dim2);
+						//drawScatterplot(g2, data, dim1, dim2);
 						drawParallelCoordinatesplot(g2, data, dim1, dim2);
 
 					}

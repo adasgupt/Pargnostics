@@ -48,7 +48,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	/*
 	 * For linking with data view and keeping track of what the user selects
 	 */
-    List<Integer> selectedAxesList = null;
+	List<Integer> selectedAxesList = null;
 	/*
 	 * List of all axis pair objects
 	 */
@@ -61,11 +61,15 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	public enum MetaMetrics{
 
-		JointEntropy, ImageEntropy, SumofJointImageEntropy, GrayEntropy, ColorEntropy, DistanceEntropy
+		JointEntropy, ImageEntropy, SumofJointImageEntropy, GrayEntropy, ColorEntropy, DistanceEntropy, KLDivergence
 
 	}
 
 	int lastClicked =-1;
+
+	boolean encodingFilter = false;
+
+	boolean decodingFilter = false ;
 
 	/*
 	 * connect with other classes
@@ -174,17 +178,25 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 
-
+					// Encoding side
 					if(row>col)
 					{
+						if(encodingFilter)
+							scatterInstanceHeight = (int)getReducedEncodingHeight(row, col);
+						//0 for left of diagonal
 						Graphics2D g3 = getMetricColor(ig, row, col, 0);
 						g3.fillRect(startX+(scatterInstanceWidth*(col)+(padding*col)), scatterInstanceHeight*(row)+(padding*row), scatterInstanceWidth-2 , scatterInstanceHeight-2);
 
 
 
 					}
+					// Decoding side
 					if(col>row)
 					{
+
+//						if(decodingFilter)
+//							scatterInstanceHeight = getReducedDecodingHeight(row, col);
+						// 1 for right of diagonal
 						Graphics2D g3 = getMetricColor(ig, col, row, 1);
 						g3.fillRect(startX+(scatterInstanceWidth*(col)+(padding*col)), scatterInstanceHeight*(row)+(padding*row), scatterInstanceWidth-2 , scatterInstanceHeight-2);
 
@@ -192,6 +204,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 					}
 
+					//suggested axis pairs
 					if( suggestedAxisPairList!= null)
 					{
 
@@ -212,6 +225,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 					}
 
+					// resetting the stroke after setting a wider stroke for suggesting axis pairs
 					ig.setStroke(new BasicStroke(1));
 					if (lastClicked == row || lastClicked == col) {
 
@@ -229,6 +243,11 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	}
 
 
+
+	private int getReducedDecodingHeight(int row, int col) {
+
+		return 0;
+	}
 	/**
 	 * get sorted list and set up colors for painting
 	 *
@@ -346,6 +365,15 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 				//System.err.println("Metric distance entropy");
 				entropy1 = m1.getWeightedColorEntropy()+ m1.getJointEntropy();
 				entropy2 = m2.getWeightedColorEntropy()+ m2.getJointEntropy();;
+
+			}
+
+			else if(metric == MetaMetrics.KLDivergence)
+			{
+
+				//System.err.println("Metric distance entropy");
+				entropy1 = m1.getKLDivergence();
+				entropy2 = m2.getKLDivergence();
 
 			}
 
@@ -496,7 +524,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	 */
 	public void addAxesToDraw(List<Integer> userSelectedAxisList) {
 
-        numSelected++;
+		numSelected++;
 		Axis[] currentAxes = getAxesFromList(currentDrawnList);
 		Integer[] currentAxesArray = new Integer[currentDrawnList.size()+1];
 		currentAxesArray= currentDrawnList.toArray(currentAxesArray);
@@ -669,5 +697,60 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		// TODO Auto-generated method stub.
 
 	}
+
+	/**
+	 * redraws the matrix view, the encoding side based on the amount of information loss.
+	 * The size of the squares will be proportional to the loss. More size means less information loss.
+	 *
+	 */
+	public void setEncodingFilter() {
+
+		
+		System.err.println("Encoding filter ON ********************** ");
+		encodingFilter = true;
+		repaint();
+
+	}
+
+	/**
+	 * Reduced height after considering information loss.
+	 *
+	 * @param row
+	 * @param col
+	 * @return
+	 */
+	public float getReducedEncodingHeight(int row, int col){
+
+		System.err.println("get reduced");
+		ArrayList<AxisPairMetrics> amList =parameterizedDisplay.getMetricsList();
+		Collections.sort(amList, new SortMetrics(MetaMetrics.KLDivergence));
+		int firstQuartile = metricsList.size()/4;
+		int thirdQuartile= (3*metricsList.size())/4;
+
+		float boxHeight =0;
+
+		for(int index=0; index<metricsList.size(); index++)
+		{
+			AxisPairMetrics am = metricsList.get(index);
+
+			/*
+			 * since low joint entropy is good, we color low joint entropy with a stronger hue, to correspond with 
+			 * 'goodness'
+			 */
+			if(am.getDimension1()==row & am.getDimension2()==col)
+			{
+				if(index<=firstQuartile)
+					boxHeight = scatterInstanceHeight*0.25f;
+
+				else if(index>firstQuartile && index <= thirdQuartile)
+					boxHeight = scatterInstanceHeight*0.5f;
+				else if(index>thirdQuartile)
+					boxHeight = scatterInstanceHeight*0.75f;
+			}
+		}
+		
+		return boxHeight;
+	}
+	
 
 }

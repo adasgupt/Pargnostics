@@ -120,7 +120,7 @@ public class MatrixFrame  extends JFrame{
 			if(e.getSource()==filterButton[0])
 			{
 
-
+              matrixView.setEncodingFilter();
 
 			}
 
