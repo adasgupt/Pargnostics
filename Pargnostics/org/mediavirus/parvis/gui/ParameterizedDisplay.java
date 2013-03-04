@@ -32,11 +32,11 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 	/*
 	 *  Parameters that control the computation of metrics-width, height of screen
 	 */
-	Point2D.Float param = new Point2D.Float(300, 300);
+	Point2D.Float param = new Point2D.Float(200, 600);
 	DataSet data = null;
 	//private BufferedImage[] imgArray;
 
-	private boolean useColor = true;
+	private boolean useColor = false;
 
 	FileWriter entropyOutput = null;
 	BufferedWriter bw = null;
@@ -46,8 +46,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 		private int axis1;
 		private int axis2;
-
-		private float jointEntropy;
+        private float jointEntropy;
 		private float grayEntropy;
 		private float colorEntropy;
 		private float distanceEntropy;
@@ -102,6 +101,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		}
 
 		public float getGrayEntropy(){
+			//System.err.println(" Gray entropy   " +grayEntropy);
 			return grayEntropy;
 		}
 		public float getColorEntropy(){
@@ -220,7 +220,9 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		this.mainDisplay = mainDisplay;
 		totalNumberOfCombinations = (data.getNumDimensions()*(data.getNumDimensions()-1))/2;
 		//imgArray = new BufferedImage[data.getNumDimensions()*data.getNumDimensions()];
-		System.err.println("Data dimensions  " +data.getNumDimensions());
+	//	System.err.println("Data dimensions  " +data.getNumDimensions());
+		
+		System.err.println("Repaint");
 		repaint();
 
 
@@ -288,21 +290,23 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			//BufferedWriter out = new BufferedWriter(fstream);
 
 			System.err.println("Image list size " +imageList.size());
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ImageEntropy));
+			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ColorEntropy));
 			String heading = "Axis pair"+ ","+"gray entropy"+","+"color entropy"+","+"weighted gray"+","+"weighted color"+","+"joint entropy";
 		//	out.write(heading);
 		//	out.newLine();
+			
 			for(int i=imageList.size()-1; i>(imageList.size()-10); i--)
 			{
-
+//			for(int i= 0; i<10; i++)
+//				{
 				AxisPairMetrics metricObject = metricsList.get(i);
 				String label1 = data.getAxisLabel(metricObject.getDimension1());
 				String label2 = data.getAxisLabel(metricObject.getDimension2());
 				
-//				Graphics g1 = metricObject.getImage().getGraphics();
-//				g1.setFont(g1.getFont().deriveFont(20f));
-//				g1.drawString("Dims "+data.getAxisLabel(metricObject.getDimension1())+ "  "+ data.getAxisLabel(metricObject.getDimension2()) +" " +metricObject.getDistanceEntropy() + "  Data Entropy " + metricObject.getJointEntropy(), 200, 100);
-//				g1.dispose();
+				Graphics g1 = metricObject.getImage().getGraphics();
+				g1.setFont(g1.getFont().deriveFont(20f));
+				g1.drawString("Dims "+data.getAxisLabel(metricObject.getDimension1())+ "  "+ data.getAxisLabel(metricObject.getDimension2()), 230, 100);
+				g1.dispose();
 
 				File outputfile = new File(i+"saved" + metricObject.getDimension1()+metricObject.getDimension2() + ".png");
 				ImageIO.write(metricObject.getImage(), "png", outputfile);
@@ -310,20 +314,22 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			//	out.newLine();
 
 				//what weights to choose for the entropy metric?
+				
+			//	System.err.println("Distance Entropy +++++++++  "+metricObject.getDistanceEntropy());
 
-				double grayentropy = metricObject.getGrayEntropy();
-				//	double weightedGrayMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getGrayEntropy())/3;
-				double weightedGrayMetric = (((metricObject.getDistanceEntropy()/10))+(1-metricObject.getGrayEntropy()))/2;
+//				double grayentropy = metricObject.getGrayEntropy();
+//				//	double weightedGrayMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getGrayEntropy())/3;
+//				double weightedGrayMetric = (((metricObject.getDistanceEntropy()/100))+(1-metricObject.getGrayEntropy()))/2;
+//
+//				double colorEntropy = metricObject.getColorEntropy();
+//				//	double weightedColorMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getColorEntropy())/3;
+//				double weightedColorMetric = (((metricObject.getDistanceEntropy()/10))+(1-metricObject.getColorEntropy()))/2;
+//
+//
+//				double jointEntropy = metricObject.getJointEntropy();
 
-				double colorEntropy = metricObject.getColorEntropy();
-				//	double weightedColorMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getColorEntropy())/3;
-				double weightedColorMetric = (((metricObject.getDistanceEntropy()/10))+(1-metricObject.getColorEntropy()))/2;
-
-
-				double jointEntropy = metricObject.getJointEntropy();
-
-
-				String text= label1+" "+label2+","+grayentropy+","+colorEntropy+","+weightedGrayMetric+","+weightedColorMetric+","+jointEntropy;
+//
+//				String text= label1+" "+label2+","+grayentropy+","+colorEntropy+","+weightedGrayMetric+","+weightedColorMetric+","+jointEntropy;
 			//	out.write(text);
 			//	out.newLine();
 				
@@ -478,11 +484,12 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		double logProbabilityValue = 0;
 		double entropy = 0;
 		float sumEntropy = 0;
+		
 		for (int i = 0; i < distanceHistogram.length; i++) {
 			probabilityValue = distanceHistogram[i] /(float)distanceHistogram.length;
 			if (probabilityValue > 0)
-				logProbabilityValue = (Math.log(1/probabilityValue))/ LOG_BASE_2;
-			entropy = (probabilityValue * logProbabilityValue);
+				logProbabilityValue = (Math.log(probabilityValue))/ LOG_BASE_2;
+			entropy = -(probabilityValue * logProbabilityValue);
 			sumEntropy =(float)( sumEntropy + entropy);
 		}
 
@@ -607,7 +614,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			if(useColor)
 				ig.setColor(getRecordColor(v1,v2, (int)param.y));
 			else
-				ig.setColor(new Color(0,0,0));
+				ig.setColor(new Color(120,120,120,160));
 			ig.drawLine(0, v1, (int)param.x, v2);	
 		}
 
@@ -620,7 +627,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
 		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
 		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
-		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/10)+(2*(1-metricObject.getGrayEntropy())))/3);
+		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/100)+(2*(1-(metricObject.getGrayEntropy()/10))))/3);
 		metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
 		
 		//setUseColor(true);
@@ -757,21 +764,21 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 
-				try {
-					// retrieve image
-		
-					File outputfile = new File("saved" + axis1+axis2 + ".png");
-					ImageIO.write(bufferImg, "png", outputfile);
-		
-					//            double entropy = computeEntropy(bufferImg);
-					//            String text= " "+entropy;
-					//            bw.write(text);
-					//            
-					//            System.err.println("Entropy " +entropy);
-		
-				} catch (IOException e) {
-		
-				}
+//				try {
+//					// retrieve image
+//		
+//					File outputfile = new File("saved" + axis1+axis2 + ".png");
+//					ImageIO.write(bufferImg, "png", outputfile);
+//		
+//					//            double entropy = computeEntropy(bufferImg);
+//					//            String text= " "+entropy;
+//					//            bw.write(text);
+//					//            
+//					//            System.err.println("Entropy " +entropy);
+//		
+//				} catch (IOException e) {
+//		
+//				}
 
 
 		//System.err.println("Images created");

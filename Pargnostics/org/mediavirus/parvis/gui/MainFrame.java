@@ -50,7 +50,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 	//private static final String INITIALFILENAME = "data/winequality.stf";
 	//	private static final String INITIALFILENAME = "data/abalone.stf";
 	//private static final String INITIALFILENAME = "data/cloud.stf";
-	private static final String INITIALFILENAME = "data/abalone.stf";
+	private static final String INITIALFILENAME = "data/winequality.stf";
 
 	DisplayMetricBarsPanel metricsDisplay;
 	PargnosticsPanel scatterPanel;

@@ -758,7 +758,10 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 		for (int j = startAxis + 1; j <= stopAxis; j++) {
 			v2 = getYValue(num, j, comp);
 			//v2 = getYValue(num, stopAxis, comp);
-			g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
+			//colorcode
+		//	g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
+			g2.setColor(new Color(0.5f,0.5f,0.5f, 0.6f));
+			
 			rPath.lineTo(stepx * j, getYValue(num, j, comp));
 			
 			

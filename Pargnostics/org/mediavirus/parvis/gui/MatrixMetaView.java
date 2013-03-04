@@ -29,8 +29,13 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	/*
 	 * drawing parameters
 	 */
-	private int scatterInstanceHeight;
-	private int scatterInstanceWidth;
+	private int boxHeight;
+	private int boxWidth;
+
+	/*
+	 * filledHeight can be different from box height, as metrics guide the coloring, and a box might not be fully colored
+	 */
+	private int filledHeight;
 	private int startX;
 	private int stepx;
 	private int padding;
@@ -125,15 +130,15 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 		//		numRecords = comp.getNumRecords();
 		if (numDimensions!=1)
-			stepx = scatterInstanceWidth / (numDimensions - 1);
+			stepx = boxWidth / (numDimensions - 1);
 
 
 
 
 		if(data != null) {
 
-			scatterInstanceHeight = getHeight() /data.getNumDimensions()-padding;
-			scatterInstanceWidth  = getWidth()/ data.getNumDimensions()-padding;
+			boxHeight = getHeight() /data.getNumDimensions()-padding;
+			boxWidth  = getWidth()/ data.getNumDimensions()-padding;
 			numDimensions = parallelDisplay.getNumAxes();
 			for(int row=0;row<data.getNumDimensions();row++) {
 
@@ -141,9 +146,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 					//g.drawLine(startX+(scatterInstanceWidth*(col)),scatterInstanceHeight*row,startX+(scatterInstanceWidth*(col+1)),scatterInstanceHeight*row);
 					//g.drawLine(startX+(scatterInstanceWidth*(col)),scatterInstanceHeight*row, startX+(scatterInstanceWidth*(col)), scatterInstanceHeight*(row+1));
-					ig.setColor(Color.lightGray);
-
-					ig.drawRect(startX+(scatterInstanceWidth*(col)+(padding*col)), scatterInstanceHeight*(row)+(padding*row), scatterInstanceWidth , scatterInstanceHeight );
+					
 
 
 					if (row == col) {
@@ -158,20 +161,20 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 						int strWidth= fm.stringWidth(text1);
 						int ascent= fm.getMaxAscent();
 						int descent= fm.getMaxDescent();
-						int rectHeight = scatterInstanceHeight;
-						int rectWidth  = scatterInstanceWidth;
+						int rectHeight = boxHeight;
+						int rectWidth  = boxWidth;
 						int str_y= rectHeight/2-descent/2+ascent/2;
 						int str_x= rectWidth/2-strWidth/2;
 
 
-						ig.drawString(text1, startX+(padding*col)+(scatterInstanceWidth*(col))+str_x, (padding*col)+(scatterInstanceHeight*(col)+str_y));
+						ig.drawString(text1, startX+(padding*col)+(boxWidth*(col))+str_x, (padding*col)+(boxHeight*(col)+str_y));
 						//g.drawRect(startX+(scatterInstanceWidth*(col)),(scatterInstanceHeight*(col)), scatterInstanceWidth, scatterInstanceHeight);
 						//g2d.drawString(label,startX+(scatterInstanceWidth*(col))+50,startX+(scatterInstanceHeight*(col))+50);
 						//g.fillRect(arg0, arg1, arg2, arg3)
 					}
 
-					int locX= startX+(scatterInstanceWidth*(col))+(padding*col);
-					int locY= scatterInstanceHeight*row + (padding*row);
+					int locX= startX+(boxWidth*(col))+(padding*col);
+					int locY= boxHeight*row + (padding*row);
 					//								if(row>col)
 					//								drawScatterplot(g2d, data, scatterInstanceHeight, scatterInstanceWidth, startX, locsX, locsY,row, col);
 					//		
@@ -181,25 +184,37 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 					// Encoding side
 					if(row>col)
 					{
-						if(encodingFilter)
-							scatterInstanceHeight = (int)getReducedEncodingHeight(row, col);
+
+						filledHeight = boxHeight-2;
 						//0 for left of diagonal
 						Graphics2D g3 = getMetricColor(ig, row, col, 0);
-						g3.fillRect(startX+(scatterInstanceWidth*(col)+(padding*col)), scatterInstanceHeight*(row)+(padding*row), scatterInstanceWidth-2 , scatterInstanceHeight-2);
-
+						g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
+						if(encodingFilter)
+						{
+							filledHeight = (int)getReducedEncodingHeight(row, col);
+							g3.setColor(Color.white);
+							g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
+							
+						}
 
 
 					}
 					// Decoding side
 					if(col>row)
 					{
-
-//						if(decodingFilter)
-//							scatterInstanceHeight = getReducedDecodingHeight(row, col);
+                        
+						filledHeight = boxHeight-2;
 						// 1 for right of diagonal
 						Graphics2D g3 = getMetricColor(ig, col, row, 1);
-						g3.fillRect(startX+(scatterInstanceWidth*(col)+(padding*col)), scatterInstanceHeight*(row)+(padding*row), scatterInstanceWidth-2 , scatterInstanceHeight-2);
-
+						g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
+						if(decodingFilter)
+						{
+							//System.err.println("Reduced decoding rectangle    ********* ");
+							filledHeight = (int)getReducedDecodingHeight(col, row);
+							g3.setColor(Color.white);
+							g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
+							
+						}
 
 
 					}
@@ -217,8 +232,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 							ig.setColor(suggestedPairColors[numSuggested]);
 							ig.setStroke(new BasicStroke(4));
-							ig.drawRect(startX+(scatterInstanceWidth*(dim2)+(padding*dim2)), scatterInstanceHeight*(dim1)+(padding*dim1), scatterInstanceWidth-1 , scatterInstanceHeight-1);
-							ig.drawRect(startX+(scatterInstanceWidth*(dim1)+(padding*dim1)), scatterInstanceHeight*(dim2)+(padding*dim2), scatterInstanceWidth-1 , scatterInstanceHeight-1);
+							ig.drawRect(startX+(boxWidth*(dim2)+(padding*dim2)), boxHeight*(dim1)+(padding*dim1), boxWidth-1 , boxHeight-1);
+							ig.drawRect(startX+(boxWidth*(dim1)+(padding*dim1)), boxHeight*(dim2)+(padding*dim2), boxWidth-1 , boxHeight-1);
 						}
 
 
@@ -230,11 +245,16 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 					if (lastClicked == row || lastClicked == col) {
 
 						ig.setColor(new Color(160, 40, 30, 100));
-						ig.fillRect( locX, locY, scatterInstanceWidth, scatterInstanceHeight);
+						ig.fillRect( locX, locY, boxWidth, boxHeight);
 
 						//	System.err.println("Yes clicked");
 
 					}
+					
+					//draw borders at the end
+					ig.setColor(Color.lightGray);
+
+					ig.drawRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth , boxHeight );
 				}
 			}
 		}
@@ -244,10 +264,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 
-	private int getReducedDecodingHeight(int row, int col) {
-
-		return 0;
-	}
+	
 	/**
 	 * get sorted list and set up colors for painting
 	 *
@@ -331,6 +348,15 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 			float entropy1 = 0;
 			float entropy2 = 0;
+			
+			if(metric==MetaMetrics.ColorEntropy)
+
+			{
+				//System.err.println("Metric joint entropy");
+				entropy1 = m1.getColorEntropy();
+				entropy2 = m2.getColorEntropy();	
+
+			}
 
 			if(metric==MetaMetrics.JointEntropy)
 
@@ -667,8 +693,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 
-		int axis1 = mousex/scatterInstanceWidth;
-		int axis2 = mousey/scatterInstanceHeight;
+		int axis1 = mousex/boxWidth;
+		int axis2 = mousey/boxHeight;
 		drawClickedAxes(axis1, axis2);
 
 
@@ -705,9 +731,19 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	 */
 	public void setEncodingFilter() {
 
-		
+
 		System.err.println("Encoding filter ON ********************** ");
 		encodingFilter = true;
+		repaint();
+
+	}
+	
+	
+	public void setDecodingFilter() {
+
+
+		System.err.println("Decoding filter ON ********************** ");
+		decodingFilter = true;
 		repaint();
 
 	}
@@ -719,38 +755,71 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	 * @param col
 	 * @return
 	 */
-	public float getReducedEncodingHeight(int row, int col){
+	public float getReducedEncodingHeight(int row, int col)
+	{
 
-		System.err.println("get reduced");
 		ArrayList<AxisPairMetrics> amList =parameterizedDisplay.getMetricsList();
 		Collections.sort(amList, new SortMetrics(MetaMetrics.KLDivergence));
 		int firstQuartile = metricsList.size()/4;
 		int thirdQuartile= (3*metricsList.size())/4;
 
-		float boxHeight =0;
+		float newBoxHeight =0;
 
 		for(int index=0; index<metricsList.size(); index++)
 		{
 			AxisPairMetrics am = metricsList.get(index);
 
-			/*
-			 * since low joint entropy is good, we color low joint entropy with a stronger hue, to correspond with 
-			 * 'goodness'
-			 */
+
 			if(am.getDimension1()==row & am.getDimension2()==col)
 			{
 				if(index<=firstQuartile)
-					boxHeight = scatterInstanceHeight*0.25f;
+					newBoxHeight = boxHeight*0.75f;
 
 				else if(index>firstQuartile && index <= thirdQuartile)
-					boxHeight = scatterInstanceHeight*0.5f;
+					newBoxHeight = boxHeight*0.5f;
 				else if(index>thirdQuartile)
-					boxHeight = scatterInstanceHeight*0.75f;
+					newBoxHeight = boxHeight*0.25f;
 			}
 		}
-		
-		return boxHeight;
+
+		return newBoxHeight;
 	}
-	
+
+	/**
+	 * Reduced height after considering pixel entropy.
+	 *
+	 * @param row
+	 * @param col
+	 * @return
+	 */
+	private float getReducedDecodingHeight(int row, int col) {
+
+		ArrayList<AxisPairMetrics> amList =parameterizedDisplay.getMetricsList();
+		Collections.sort(amList, new SortMetrics(MetaMetrics.ColorEntropy));
+		int firstQuartile = metricsList.size()/4;
+		int thirdQuartile= (3*metricsList.size())/4;
+
+		float newBoxHeight =0;
+
+		for(int index=0; index<metricsList.size(); index++)
+		{
+			AxisPairMetrics am = metricsList.get(index);
+            System.err.println(" Entropy value  " + am.getColorEntropy());
+
+			if(am.getDimension1()==row & am.getDimension2()==col)
+			{
+				if(index<=firstQuartile)
+					newBoxHeight = boxHeight*0.75f;
+
+				else if(index>firstQuartile && index <= thirdQuartile)
+					newBoxHeight = boxHeight*0.5f;
+				else if(index>thirdQuartile)
+					newBoxHeight = boxHeight*0.25f;
+			}
+		}
+
+		//System.err.println(" Decoding height  +++++++++ " +newBoxHeight);
+		return newBoxHeight;
+	}
 
 }

@@ -89,14 +89,14 @@ public class MatrixFrame  extends JFrame{
 
 			if(e.getSource() == multiDimButton[0] )
 			{
-                matrixView.suggestAxisPairs(MetaMetrics.JointEntropy);
-			//	System.err.println("Reduce semantic uncertainty");
+				matrixView.suggestAxisPairs(MetaMetrics.JointEntropy);
+				//	System.err.println("Reduce semantic uncertainty");
 
 			}
 
 			if(e.getSource() == multiDimButton[1] )
 			{
-                matrixView.suggestAxisPairs(MetaMetrics.ImageEntropy);
+				matrixView.suggestAxisPairs(MetaMetrics.ImageEntropy);
 				System.err.println("Reduce visual uncertainty");
 
 			}
@@ -120,13 +120,14 @@ public class MatrixFrame  extends JFrame{
 			if(e.getSource()==filterButton[0])
 			{
 
-              matrixView.setEncodingFilter();
+				matrixView.setEncodingFilter();
 
 			}
 
 			if(e.getSource()==filterButton[1])
 			{
 
+				matrixView.setDecodingFilter();
 
 
 			}
