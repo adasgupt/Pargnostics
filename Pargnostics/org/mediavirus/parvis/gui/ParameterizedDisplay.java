@@ -267,7 +267,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			processMetrics();
 
 
-			System.err.println("Call count " +callCount);
+			//System.err.println("Call count " +callCount);
 
 		}
 		else 
@@ -295,17 +295,17 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		//	out.write(heading);
 		//	out.newLine();
 			
-			for(int i=imageList.size()-1; i>(imageList.size()-10); i--)
-			{
-//			for(int i= 0; i<10; i++)
-//				{
+//			for(int i=imageList.size()-1; i>(imageList.size()-10); i--)
+//			{
+			for(int i= 0; i<10; i++)
+				{
 				AxisPairMetrics metricObject = metricsList.get(i);
 				String label1 = data.getAxisLabel(metricObject.getDimension1());
 				String label2 = data.getAxisLabel(metricObject.getDimension2());
 				
 				Graphics g1 = metricObject.getImage().getGraphics();
 				g1.setFont(g1.getFont().deriveFont(20f));
-				g1.drawString("Dims "+data.getAxisLabel(metricObject.getDimension1())+ "  "+ data.getAxisLabel(metricObject.getDimension2()), 230, 100);
+				g1.drawString(data.getAxisLabel(metricObject.getDimension1())+ "  "+ data.getAxisLabel(metricObject.getDimension2()), 230, 100);
 				g1.dispose();
 
 				File outputfile = new File(i+"saved" + metricObject.getDimension1()+metricObject.getDimension2() + ".png");
@@ -602,7 +602,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		//		}
 
 
-
+        ig.drawLine(0, 0, 0, (int)param.y);
+        ig.drawLine((int)param.x, 0, (int)param.x, (int)param.y);
 
 		/*
 		 * the loop for rendering all the lines in parallel coordinates
