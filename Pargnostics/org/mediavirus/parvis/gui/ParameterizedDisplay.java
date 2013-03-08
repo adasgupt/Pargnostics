@@ -20,19 +20,20 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import org.mediavirus.parvis.file.STFFile;
 import org.mediavirus.parvis.gui.MatrixMetaView.MetaMetrics;
 import org.mediavirus.parvis.gui.MatrixMetaView.SortMetrics;
 import org.mediavirus.parvis.gui.analysis.AxisPair;
 import org.mediavirus.parvis.model.DataSet;
 
 public class ParameterizedDisplay extends JPanel implements MouseListener, MouseMotionListener {
-	
+
 
 
 	/*
 	 *  Parameters that control the computation of metrics-width, height of screen
 	 */
-	Point2D.Float param = new Point2D.Float(200, 600);
+	Point2D.Float param = new Point2D.Float(600, 600);
 	DataSet data = null;
 	//private BufferedImage[] imgArray;
 
@@ -46,7 +47,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 		private int axis1;
 		private int axis2;
-        private float jointEntropy;
+		private float jointEntropy;
 		private float grayEntropy;
 		private float colorEntropy;
 		private float distanceEntropy;
@@ -120,18 +121,18 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		public float getWeightedColorEntropy(){
 			return weightedColorEntropy;
 		}
-		
-		
-		
+
+
+
 		public void setKLDivergence(float kld){
 			klDiv = kld;
 		}
-		
+
 		public float getKLDivergence(){
 			return klDiv;
 		}
 
-		
+
 		public void storeImage(BufferedImage bufferImg){
 
 			img = bufferImg;
@@ -220,8 +221,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		this.mainDisplay = mainDisplay;
 		totalNumberOfCombinations = (data.getNumDimensions()*(data.getNumDimensions()-1))/2;
 		//imgArray = new BufferedImage[data.getNumDimensions()*data.getNumDimensions()];
-	//	System.err.println("Data dimensions  " +data.getNumDimensions());
-		
+		//	System.err.println("Data dimensions  " +data.getNumDimensions());
+
 		System.err.println("Repaint");
 		repaint();
 
@@ -256,8 +257,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 					else
 					{
 
-						//drawScatterplot(g2, data, dim1, dim2);
-						drawParallelCoordinatesplot(g2, data, dim1, dim2);
+						drawScatterplot(g2, data, dim1, dim2);
+						//drawParallelCoordinatesplot(g2, data, dim1, dim2);
 
 					}
 				}
@@ -272,7 +273,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		}
 		else 
 			return;
-	
+
 
 	}
 
@@ -290,59 +291,129 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			//BufferedWriter out = new BufferedWriter(fstream);
 
 			System.err.println("Image list size " +imageList.size());
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ColorEntropy));
-			String heading = "Axis pair"+ ","+"gray entropy"+","+"color entropy"+","+"weighted gray"+","+"weighted color"+","+"joint entropy";
-		//	out.write(heading);
-		//	out.newLine();
-			
-//			for(int i=imageList.size()-1; i>(imageList.size()-10); i--)
-//			{
-			for(int i= 0; i<10; i++)
-				{
-				AxisPairMetrics metricObject = metricsList.get(i);
-				String label1 = data.getAxisLabel(metricObject.getDimension1());
-				String label2 = data.getAxisLabel(metricObject.getDimension2());
-				
-				Graphics g1 = metricObject.getImage().getGraphics();
-				g1.setFont(g1.getFont().deriveFont(20f));
-				g1.drawString(data.getAxisLabel(metricObject.getDimension1())+ "  "+ data.getAxisLabel(metricObject.getDimension2()), 230, 100);
-				g1.dispose();
 
-				File outputfile = new File(i+"saved" + metricObject.getDimension1()+metricObject.getDimension2() + ".png");
-				ImageIO.write(metricObject.getImage(), "png", outputfile);
+			String heading = "Axis pair"+ ","+"gray entropy"+","+"color entropy"+","+"weighted gray"+","+"weighted color"+","+"joint entropy";
+			//	out.write(heading);
+			//	out.newLine();
+			int ascendingIndex =0;
+			
+			//DistanceEntropy
+			Collections.sort(metricsList, new SortMetrics(MetaMetrics.DistanceEntropy));
+			//descending order
+			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
+			{
+				AxisPairMetrics metricObject = metricsList.get(i);
+				printImages(ascendingIndex, metricObject, 0, MetaMetrics.DistanceEntropy);
+				ascendingIndex++;
+			}
+			//ascending order
+			ascendingIndex =0;
+			for(int i= 0; i<3; i++)
+			{
+				AxisPairMetrics metricObject = metricsList.get(i);
+				printImages(i, metricObject, 1, MetaMetrics.DistanceEntropy);
+			}
+
+			
+			//ImageEntropy
+			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ImageEntropy));
+			//descending order
+			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
+			{
+				AxisPairMetrics metricObject = metricsList.get(i);
+				printImages(ascendingIndex, metricObject, 0, MetaMetrics.ImageEntropy);
+				ascendingIndex++;
+			}
+			ascendingIndex =0;
+			//ascending order
+			for(int i= 0; i<3; i++)
+			{
+				AxisPairMetrics metricObject = metricsList.get(i);
+				printImages(i, metricObject, 1, MetaMetrics.ImageEntropy);
+			}
+			
+			
+
+			//JointEntropy
+			Collections.sort(metricsList, new SortMetrics(MetaMetrics.JointEntropy));
+			//descending order
+			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
+			{
+				AxisPairMetrics metricObject = metricsList.get(i);
+				printImages(ascendingIndex, metricObject, 0, MetaMetrics.JointEntropy);
+				ascendingIndex++;
+			}
+			ascendingIndex =0;
+			//ascending order
+			for(int i= 0; i<3; i++)
+			{
+				AxisPairMetrics metricObject = metricsList.get(i);
+				printImages(i, metricObject, 1, MetaMetrics.JointEntropy);
+			}
 			//	out.write(i+"saved" + metricObject.getDimension1()+metricObject.getDimension2() + ".png");
 			//	out.newLine();
 
-				//what weights to choose for the entropy metric?
-				
+			//what weights to choose for the entropy metric?
+
 			//	System.err.println("Distance Entropy +++++++++  "+metricObject.getDistanceEntropy());
 
-//				double grayentropy = metricObject.getGrayEntropy();
-//				//	double weightedGrayMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getGrayEntropy())/3;
-//				double weightedGrayMetric = (((metricObject.getDistanceEntropy()/100))+(1-metricObject.getGrayEntropy()))/2;
-//
-//				double colorEntropy = metricObject.getColorEntropy();
-//				//	double weightedColorMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getColorEntropy())/3;
-//				double weightedColorMetric = (((metricObject.getDistanceEntropy()/10))+(1-metricObject.getColorEntropy()))/2;
-//
-//
-//				double jointEntropy = metricObject.getJointEntropy();
+			//				double grayentropy = metricObject.getGrayEntropy();
+			//				//	double weightedGrayMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getGrayEntropy())/3;
+			//				double weightedGrayMetric = (((metricObject.getDistanceEntropy()/100))+(1-metricObject.getGrayEntropy()))/2;
+			//
+			//				double colorEntropy = metricObject.getColorEntropy();
+			//				//	double weightedColorMetric = ((2*(metricObject.getDistanceEntropy()/10))+metricObject.getColorEntropy())/3;
+			//				double weightedColorMetric = (((metricObject.getDistanceEntropy()/10))+(1-metricObject.getColorEntropy()))/2;
+			//
+			//
+			//				double jointEntropy = metricObject.getJointEntropy();
 
-//
-//				String text= label1+" "+label2+","+grayentropy+","+colorEntropy+","+weightedGrayMetric+","+weightedColorMetric+","+jointEntropy;
+			//
+			//				String text= label1+" "+label2+","+grayentropy+","+colorEntropy+","+weightedGrayMetric+","+weightedColorMetric+","+jointEntropy;
 			//	out.write(text);
 			//	out.newLine();
-				
 
-			}
 
-		//	out.close();
+
+
+			//	out.close();
 
 
 
 		}catch (Exception e){//Catch exception if any
 			System.err.println("Error: " + e.getMessage());
 		}
+	}
+
+
+	/**
+	 * TODO Put here a description of what this method does.
+	 *
+	 * @param i
+	 * @param metricObject
+	 * @throws IOException
+	 */
+	public void printImages(int sortedPosition, AxisPairMetrics metricObject, int mode, MetaMetrics metric) throws IOException {
+
+		//System.err.println("prinitng  _+++++++++++++++++++++++++ ");
+		File outputfile = null;
+		STFFile f =(STFFile)data;
+		String fileName = f.getName();
+		fileName = fileName.substring(5, fileName.length()-4);
+		String label1 = data.getAxisLabel(metricObject.getDimension1());
+		String label2 = data.getAxisLabel(metricObject.getDimension2());
+
+		Graphics g1 = metricObject.getImage().getGraphics();
+		g1.setFont(g1.getFont().deriveFont(20f));
+		g1.drawString(label1+ "  "+ label2, 230, 700);
+		g1.dispose();
+
+
+		if(mode ==0)
+			outputfile = new File(metric.name()+"low"+fileName+sortedPosition + ".png");
+		else if(mode ==1)
+			outputfile = new File(metric.name()+"high"+fileName+sortedPosition + ".png");
+		ImageIO.write(metricObject.getImage(), "png", outputfile);
 	}
 
 	protected Color getRecordColor(float point1, float point2, int numBins){
@@ -381,8 +452,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			double entropy = (probabilityValue * logprobabilityValue);
 
 			sumOfEntropy = sumOfEntropy + entropy;
-			
-		//System.err.println(" Test Entropy    *******  " +sumOfEntropy);
+
+			//System.err.println(" Test Entropy    *******  " +sumOfEntropy);
 
 
 		}
@@ -478,13 +549,13 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 		int numBins = (int)param.y;
-		int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogram(numBins, false);
+		int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogramScatter(numBins, false);
 
 		double probabilityValue = 0;
 		double logProbabilityValue = 0;
 		double entropy = 0;
 		float sumEntropy = 0;
-		
+
 		for (int i = 0; i < distanceHistogram.length; i++) {
 			probabilityValue = distanceHistogram[i] /(float)distanceHistogram.length;
 			if (probabilityValue > 0)
@@ -555,7 +626,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 
-	
+
 	private void drawParallelCoordinatesplot(Graphics g,DataSet data, int axis1, int axis2){
 
 		//float axisOffset1 = parallelDisplay.getAxisOffset(axis1);
@@ -602,8 +673,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		//		}
 
 
-        ig.drawLine(0, 0, 0, (int)param.y);
-        ig.drawLine((int)param.x, 0, (int)param.x, (int)param.y);
+		ig.drawLine(0, 0, 0, (int)param.y);
+		ig.drawLine((int)param.x, 0, (int)param.x, (int)param.y);
 
 		/*
 		 * the loop for rendering all the lines in parallel coordinates
@@ -630,7 +701,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
 		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/100)+(2*(1-(metricObject.getGrayEntropy()/10))))/3);
 		metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
-		
+
 		//setUseColor(true);
 
 		metricObject.storeImage(bufferImg);
@@ -670,7 +741,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		//System.err.println("Images created");
 
 	}
-	
+
 	private void drawScatterplot(Graphics g,DataSet data, int axis1, int axis2){
 
 		//float axisOffset1 = parallelDisplay.getAxisOffset(axis1);
@@ -717,8 +788,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 		//		}
 
 		ig.setColor(new Color(0,0,0));
-         ig.drawLine(0, 0, 0, (int)param.y);
-         ig.drawLine(0, (int)param.y, (int)param.x, (int)param.y);
+		ig.drawLine(0, 0, 0, (int)param.y);
+		ig.drawLine(0, (int)param.y, (int)param.x, (int)param.y);
 
 		/*
 		 * the loop for rendering all the lines in parallel coordinates
@@ -727,11 +798,11 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 			int v1 = (int)((dataRow[axis1] - axisOffset1) * (param.x) / scale1);
 			int v2 = (int)((dataRow[axis2] - axisOffset2) * (param.y) / scale2);
-//			if(useColor)
-//				ig.setColor(getRecordColor(v1,v2, (int)param.y));
-//			else
-				ig.setColor(new Color(0,0,0));
-			
+			//			if(useColor)
+			//				ig.setColor(getRecordColor(v1,v2, (int)param.y));
+			//			else
+			ig.setColor(new Color(0,0,0));
+
 			//ig.drawLine((int)(v1), (int)(param.y-v2), (int)(v1)+2,(int)(param.y-v2)+2);	
 			ig.drawOval((int)(v1), (int)(param.y-v2), 2, 2);
 		}
@@ -765,71 +836,71 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 
-//				try {
-//					// retrieve image
-//		
-//					File outputfile = new File("saved" + axis1+axis2 + ".png");
-//					ImageIO.write(bufferImg, "png", outputfile);
-//		
-//					//            double entropy = computeEntropy(bufferImg);
-//					//            String text= " "+entropy;
-//					//            bw.write(text);
-//					//            
-//					//            System.err.println("Entropy " +entropy);
-//		
-//				} catch (IOException e) {
-//		
-//				}
+		//				try {
+		//					// retrieve image
+		//		
+		//					File outputfile = new File("saved" + axis1+axis2 + ".png");
+		//					ImageIO.write(bufferImg, "png", outputfile);
+		//		
+		//					//            double entropy = computeEntropy(bufferImg);
+		//					//            String text= " "+entropy;
+		//					//            bw.write(text);
+		//					//            
+		//					//            System.err.println("Entropy " +entropy);
+		//		
+		//				} catch (IOException e) {
+		//		
+		//				}
 
 
 		//System.err.println("Images created");
 
 	}
-	
+
 	public float getKLDivergence(int axis1, int axis2){
-		
+
 		int numPixelBins = (int)param.y;
 		int numDataBins = data.getNumRecords();
 		int[][] imageHist= data.get2DHistogram(axis1, axis2, (int)param.y);
 		int[][] dataHist = data.get2DHistogram(axis1, axis2, data.getNumRecords());
-		
-		
+
+
 		float[] imageProbabilityArray = new float[data.getValues().size()];
 		float[] dataProbabilityArray =  new float[data.getValues().size()];
-		
+
 		for(int recordNum=0; recordNum<data.getValues().size(); recordNum++)
 		{
 			float val1 = data.getValues().get(recordNum)[axis1];
 			float val2 = data.getValues().get(recordNum)[axis2];
 			val1 = val1 - data.getMinValue(axis1);
 			val2 = val2 - data.getMinValue(axis2);
-			
+
 			int pixelbin1 = (int) (numPixelBins * (val1 / (data.getMaxValue(axis1)-data.getMinValue(axis1))));
 			int pixelbin2 = (int) (numPixelBins * (val2 / (data.getMaxValue(axis2)-data.getMinValue(axis2))));
-			
+
 			int databin1 = (int) (numDataBins * (val1 / (data.getMaxValue(axis1)-data.getMinValue(axis1))));
 			int databin2 = (int) (numDataBins * (val2 / (data.getMaxValue(axis2)-data.getMinValue(axis2))));
-			
+
 			imageProbabilityArray[recordNum] = imageHist[pixelbin1][pixelbin2]/(float)(imageHist.length);
 			dataProbabilityArray[recordNum] =  dataHist[databin1][databin2]/(float)(dataHist.length);
-			
-			
+
+
 		}
-		
-		
+
+
 		float klDiv = 0f;
 
-	      for (int i = 0; i < 	imageProbabilityArray.length; ++i) {
-	        if (imageProbabilityArray[i] == 0) { continue; }
-	        if (dataProbabilityArray[i] == 0.0) { continue; } 
+		for (int i = 0; i < 	imageProbabilityArray.length; ++i) {
+			if (imageProbabilityArray[i] == 0) { continue; }
+			if (dataProbabilityArray[i] == 0.0) { continue; } 
 
-	      klDiv += imageProbabilityArray[i] * Math.log( imageProbabilityArray[i] / dataProbabilityArray[i] );
-	      }
+			klDiv += imageProbabilityArray[i] * Math.log( imageProbabilityArray[i] / dataProbabilityArray[i] );
+		}
 
-	      System.err.println(" KLDiv    *********************  " +klDiv);
-	      klDiv= (float)(klDiv/LOG_BASE_2);
-		
-	    return klDiv;
+		System.err.println(" KLDiv    *********************  " +klDiv);
+		klDiv= (float)(klDiv/LOG_BASE_2);
+
+		return klDiv;
 	}
 
 	public ArrayList<BufferedImage> getBufferedImageList(){
