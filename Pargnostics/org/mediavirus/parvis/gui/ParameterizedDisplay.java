@@ -37,7 +37,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 	DataSet data = null;
 	//private BufferedImage[] imgArray;
 
-	private boolean useColor = false;
+	private boolean useColor = true;
 
 	FileWriter entropyOutput = null;
 	BufferedWriter bw = null;
@@ -257,8 +257,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 					else
 					{
 
-						drawScatterplot(g2, data, dim1, dim2);
-						//drawParallelCoordinatesplot(g2, data, dim1, dim2);
+						//drawScatterplot(g2, data, dim1, dim2);
+						drawParallelCoordinatesplot(g2, data, dim1, dim2);
 
 					}
 				}
@@ -299,14 +299,14 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			
 			//DistanceEntropy
 			Collections.sort(metricsList, new SortMetrics(MetaMetrics.DistanceEntropy));
-			//descending order
+			//ascending order
 			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
 			{
 				AxisPairMetrics metricObject = metricsList.get(i);
 				printImages(ascendingIndex, metricObject, 0, MetaMetrics.DistanceEntropy);
 				ascendingIndex++;
 			}
-			//ascending order
+			//descending order
 			ascendingIndex =0;
 			for(int i= 0; i<3; i++)
 			{
@@ -316,40 +316,40 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 			
 			//ImageEntropy
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ImageEntropy));
-			//descending order
-			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
-			{
-				AxisPairMetrics metricObject = metricsList.get(i);
-				printImages(ascendingIndex, metricObject, 0, MetaMetrics.ImageEntropy);
-				ascendingIndex++;
-			}
-			ascendingIndex =0;
-			//ascending order
-			for(int i= 0; i<3; i++)
-			{
-				AxisPairMetrics metricObject = metricsList.get(i);
-				printImages(i, metricObject, 1, MetaMetrics.ImageEntropy);
-			}
+//			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ImageEntropy));
+//			//descending order
+//			for(int i=imageList.size()-1; i>=(imageList.size()-10); i--)
+//			{
+//				AxisPairMetrics metricObject = metricsList.get(i);
+//				printImages(ascendingIndex, metricObject, 0, MetaMetrics.ImageEntropy);
+//				ascendingIndex++;
+//			}
+//			ascendingIndex =0;
+//			//ascending order
+//			for(int i= 0; i<10; i++)
+//			{
+//				AxisPairMetrics metricObject = metricsList.get(i);
+//				printImages(i, metricObject, 1, MetaMetrics.ImageEntropy);
+//			}
 			
 			
 
 			//JointEntropy
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.JointEntropy));
-			//descending order
-			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
-			{
-				AxisPairMetrics metricObject = metricsList.get(i);
-				printImages(ascendingIndex, metricObject, 0, MetaMetrics.JointEntropy);
-				ascendingIndex++;
-			}
-			ascendingIndex =0;
-			//ascending order
-			for(int i= 0; i<3; i++)
-			{
-				AxisPairMetrics metricObject = metricsList.get(i);
-				printImages(i, metricObject, 1, MetaMetrics.JointEntropy);
-			}
+//			Collections.sort(metricsList, new SortMetrics(MetaMetrics.JointEntropy));
+//			//descending order
+//			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
+//			{
+//				AxisPairMetrics metricObject = metricsList.get(i);
+//				printImages(ascendingIndex, metricObject, 0, MetaMetrics.JointEntropy);
+//				ascendingIndex++;
+//			}
+//			ascendingIndex =0;
+//			//ascending order
+//			for(int i= 0; i<3; i++)
+//			{
+//				AxisPairMetrics metricObject = metricsList.get(i);
+//				printImages(i, metricObject, 1, MetaMetrics.JointEntropy);
+//			}
 			//	out.write(i+"saved" + metricObject.getDimension1()+metricObject.getDimension2() + ".png");
 			//	out.newLine();
 
@@ -549,7 +549,8 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 		int numBins = (int)param.y;
-		int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogramScatter(numBins, false);
+	//	int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogramScatter(numBins, false);
+		int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogram(numBins, false);
 
 		double probabilityValue = 0;
 		double logProbabilityValue = 0;

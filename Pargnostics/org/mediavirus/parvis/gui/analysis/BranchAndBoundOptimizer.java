@@ -78,12 +78,13 @@ public class BranchAndBoundOptimizer {
 		 										{11, 7, 9, Float.POSITIVE_INFINITY, 2},
 		 										{18, 7, 17, 4, Float.POSITIVE_INFINITY}};
 	
-	public BranchAndBoundOptimizer(ParallelDisplay display, float[] weights, boolean maximize[], boolean invert, int numBins) {
+	public BranchAndBoundOptimizer(ParallelDisplay display, float[] weights, boolean maximize[], int numBins) {
 	
 		DataSet model = display.getModel();
 		numDimensions = model.getNumDimensions();
 		costs = new float[numDimensions][numDimensions];
 		axisPairInversions = new boolean[numDimensions];
+		boolean invert = false;
 		
 		Date start = new Date();
 		

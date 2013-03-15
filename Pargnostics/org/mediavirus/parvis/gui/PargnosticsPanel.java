@@ -740,36 +740,36 @@ class PargnosticsPanel extends JPanel implements MouseListener,MouseMotionListen
 	private List<AxisPairMetrics> getRankedAxispairs(DataSet data, Metrics metric, boolean ascending, boolean inversionFlag){
 
 		List<AxisPairMetrics> metricsList=new ArrayList<AxisPairMetrics>();
-		float val=0;
-		float invertedVal=0;
-		for(int row = 0; row < data.getNumDimensions(); row++) {
-			for(int col = row+1; col < data.getNumDimensions(); col++) {
-
-
-				if (metric == Metrics.PixelBasedEntropy)
-
-					val = 0;
-				else
-					if(inversionFlag == false)
-					{
-						val = data.getAxisPair(row, col, parallelDisplay).getMetric(metric, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV()).getValue();
-						AxisPairMetrics metricByAxisPairNonInverted = new AxisPairMetrics(row,col,val,inversionFlag);
-						metricsList.add(metricByAxisPairNonInverted); 
-					}
-					else if( inversionFlag == true )
-					{	
-						val = data.getAxisPair(row, col, parallelDisplay).getMetric(metric, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV()).getValue();
-						invertedVal = data.getAxisPair(row, col, parallelDisplay).getMetric(metric, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV()).getInvertedValue();
-
-						AxisPairMetrics metricByAxisPairNonInverted = new AxisPairMetrics(row,col,val,false);
-						AxisPairMetrics metricByAxisPairInverted = new AxisPairMetrics(row,col,invertedVal,true);
-						metricsList.add(metricByAxisPairNonInverted);
-						metricsList.add(metricByAxisPairInverted );
-					}
-
-
-			}
-		}
+//		float val=0;
+//		float invertedVal=0;
+//		for(int row = 0; row < data.getNumDimensions(); row++) {
+//			for(int col = row+1; col < data.getNumDimensions(); col++) {
+//
+//
+//				if (metric == Metrics.PixelBasedEntropy)
+//
+//					val = 0;
+//				else
+//					if(inversionFlag == false)
+//					{
+//						val = data.getAxisPair(row, col, parallelDisplay).getMetric(metric, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV()).getValue();
+//						AxisPairMetrics metricByAxisPairNonInverted = new AxisPairMetrics(row,col,val,inversionFlag);
+//						metricsList.add(metricByAxisPairNonInverted); 
+//					}
+//					else if( inversionFlag == true )
+//					{	
+//						val = data.getAxisPair(row, col, parallelDisplay).getMetric(metric, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV()).getValue();
+//						invertedVal = data.getAxisPair(row, col, parallelDisplay).getMetric(metric, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV()).getInvertedValue();
+//
+//						AxisPairMetrics metricByAxisPairNonInverted = new AxisPairMetrics(row,col,val,false);
+//						AxisPairMetrics metricByAxisPairInverted = new AxisPairMetrics(row,col,invertedVal,true);
+//						metricsList.add(metricByAxisPairNonInverted);
+//						metricsList.add(metricByAxisPairInverted );
+//					}
+//
+//
+//			}
+//		}
 
 		List<AxisPairMetrics> sortedList=getSortedList(metric,metricsList, ascending);
 		return sortedList;

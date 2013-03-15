@@ -49,7 +49,7 @@ public class OptimizationPanel extends JPanel {
 
 	Brush dragBrush;
 	boolean inBrush=false;
-	private JCheckBox invertCB;
+	
 	private JButton optimizationButton;
 	private JSlider sliderBar[] = new JSlider[3];
 	String comboBoxItems[];
@@ -76,7 +76,7 @@ public class OptimizationPanel extends JPanel {
 	private int brushIndex;
 	private JPanel buttonBox;
 
-	public OptimizationPanel(DisplayMetricBarsPanel mD, ParallelDisplay parallelDisplay) {
+	public OptimizationPanel(ParallelDisplay parallelDisplay) {
 		super();
 		this.parallelDisplay = parallelDisplay;
 		this.data = parallelDisplay.getModel();
@@ -142,20 +142,19 @@ public class OptimizationPanel extends JPanel {
 		
 	
 		
-		//Outlier Button
 		
 		
 		buttonBox = new JPanel(new MigLayout());
 
 		
 		
-		for(int i = 0; i < Metrics.values().length; i++) {
-			JButton b = new JButton(Metrics.values()[i].name()); 
-			b.setBackground(mD.metricColor[i]);
-			buttonBox.add(b, "height 22!, gap 0, growx, wrap");
-
-			buttons.add(b);
-		}
+//		for(int i = 0; i < Metrics.values().length; i++) {
+//			JButton b = new JButton(Metrics.values()[i].name()); 
+//			b.setBackground(mD.metricColor[i]);
+//			buttonBox.add(b, "height 22!, gap 0, growx, wrap");
+//
+//			buttons.add(b);
+//		}
 
 	//	Box mainBox = Box.createVerticalBox();
 	//	sliderPanel.add(mainBox,"h 300");
@@ -647,14 +646,15 @@ public class OptimizationPanel extends JPanel {
 
 	private void optimize() {
 		System.err.println("********************");
-		System.err.println("Optimizing ...");
+	//	System.err.println("Optimizing new");
 		float weights[] = getWeights();
-		boolean maximize[] = getMaximize();
+	    boolean maximize[] = getMaximize();
+	    
 		System.err.print("Weights: ");
 		for (float f : weights)
 			System.err.print(f+", ");
 		System.err.println();
-		BranchAndBoundOptimizer bb = new BranchAndBoundOptimizer(parallelDisplay, weights, maximize, invertCB.isSelected(), parallelDisplay.getHeight()-2*parallelDisplay.getBorderV());
+		BranchAndBoundOptimizer bb = new BranchAndBoundOptimizer(parallelDisplay, weights, maximize, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV());
 		ArrayList<Integer> bestPerm = bb.optimize();
 
 		int bestPermArray[] = new int[bestPerm.size()];
@@ -667,9 +667,16 @@ public class OptimizationPanel extends JPanel {
 
 
 	private boolean[] getMaximize() {
-		boolean maximize[] = new boolean[Metrics.values().length];
-		for (int i = 0; i < Metrics.values().length; i++)
-			maximize[i] = maximizers[i].isSelected();
+		boolean maximize[] = new boolean[5];
+		
+//		for(int i=0; i<maximizers.length; i++)
+//		{
+//			
+//			System.err.println("VALLL " +maximizers[i]);
+//		}
+//		
+//		for (int i = 0; i < Metrics.values().length; i++)
+//			maximize[i] = maximizers[i].isSelected();
 
 		return maximize;
 	}

@@ -1520,7 +1520,7 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 //					displayMetrics[Metrics.Parallelism.ordinal()] = parallelism;
 
 					float mutualInfo = parallelDisplay.getModel().getAxisPair(hoverAxis, hoverAxis+1, parallelDisplay).getMutualInfo(numBins).getValue();
-					displayMetrics[Metrics.MutualInformation.ordinal()] = mutualInfo;
+			//		displayMetrics[Metrics.MutualInformation.ordinal()] = mutualInfo;
 				//	System.err.println( " mutualInfo  "   + mutualInfo);
 					
 					
@@ -1537,7 +1537,7 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 					float conditionalEntropy = parallelDisplay.getModel().getAxisPair(dim1, dim2, parallelDisplay).getJointEntropy(numBins);
 					float pixelBasedEntropy = parallelDisplay.getDisplayUI().pixelBasedEntropyArray[hoverAxis];
 							    System.err.println("PE  " +pixelBasedEntropy + "   "  + "Conditional Entropy " + conditionalEntropy);
-					displayMetrics[Metrics.PixelBasedEntropy.ordinal()] = pixelBasedEntropy;
+				//	displayMetrics[Metrics.PixelBasedEntropy.ordinal()] = pixelBasedEntropy;
 					
 //					float distanceEntropy = parallelDisplay.getModel().getAxisPair(dim1, dim2, parallelDisplay).getDistanceEntropy(numBins);
 //				    System.err.println("Distance Entropy " + distanceEntropy);

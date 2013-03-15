@@ -50,7 +50,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 	//private static final String INITIALFILENAME = "data/winequality.stf";
 	//	private static final String INITIALFILENAME = "data/abalone.stf";
 	//private static final String INITIALFILENAME = "data/cloud.stf";
-	private static final String INITIALFILENAME = "data/diabetesNumerical.stf";
+	private static final String INITIALFILENAME = "data/winequalityNumerical.stf";
 
 	DisplayMetricBarsPanel metricsDisplay;
 	PargnosticsPanel scatterPanel;
@@ -379,12 +379,12 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 
 		metricsDisplay = new DisplayMetricBarsPanel(parallelDisplay);
 
-		OptimizationPanel optimizationPanel = new OptimizationPanel(metricsDisplay, parallelDisplay);
+		OptimizationPanel optimizationPanel = new OptimizationPanel(parallelDisplay);
 
 		//      histogramPanel = new HistogramPanel(parallelDisplay);
 		//  add(brushControlPanel, "width 200!");
 
-		add(optimizationPanel, "width 200!");
+		add(optimizationPanel, "width 300!");
 		add(parallelDisplay, "grow, wrap");
 
 		add(optimizationPanel.getButtonBox(), "height ::200");

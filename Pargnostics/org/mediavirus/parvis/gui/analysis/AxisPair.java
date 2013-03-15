@@ -14,13 +14,13 @@ import org.mediavirus.parvis.model.DataSet;
 public final class AxisPair {
 
 	public enum Metrics {
-		//NumCrossings(-1),
-		//AngleOfCrossings(90),
-		PrincipleDirection(1),
+		NumCrossings(-1),
+		AngleOfCrossings(90),
+	//	PrincipleDirection(1),
 		Parallelism(1),
-		SubSpaceClumping(10),
-		MutualInformation(6),
-		PixelBasedEntropy(6);
+		SubSpaceClumping(10);
+	//	MutualInformation(6),
+	//	PixelBasedEntropy(6);
 		//	Convergence_Divergence(-1),
 		//Overplotting(-1),
 
@@ -55,12 +55,12 @@ public final class AxisPair {
 			//			return (float)(0.5);
 			//		case AngleOfCrossings:
 			//			return (float)(0.5);
-			case PrincipleDirection :
-				return (float)(0.5);
+//			case PrincipleDirection :
+//				return (float)(0.5);
 			case Parallelism:
 				return (float)(0.5);
-			case MutualInformation:
-				return (float)(1.0);
+//			case MutualInformation:
+//				return (float)(1.0);
 				//		case Convergence_Divergence:
 				//			return (float)model.getNumRecords()/10;
 				//		case Overplotting:
@@ -843,11 +843,11 @@ public final class AxisPair {
 		//		case Convergence_Divergence:
 		//			return getConvergence_Divergence(numBins, 30);
 
-		case PrincipleDirection :
-
-			float medianParallelism = getParallelism(numBins).x;
-			ValuePair medParallelism = new ValuePair(medianParallelism, medianParallelism);
-			return medParallelism;
+//		case PrincipleDirection :
+//
+//			float medianParallelism = getParallelism(numBins).x;
+//			ValuePair medParallelism = new ValuePair(medianParallelism, medianParallelism);
+//			return medParallelism;
 
 		case Parallelism :
 			float rangeParallelism = getParallelism(numBins).y;
@@ -859,8 +859,8 @@ public final class AxisPair {
 			ValuePair clumping = new ValuePair(averageClumping, averageClumping);
 			return clumping;
 
-		case MutualInformation:
-			return getMutualInfo(numBins);
+//		case MutualInformation:
+//			return getMutualInfo(numBins);
 
 		default:
 			return new ValuePair(0, 0);
@@ -870,12 +870,12 @@ public final class AxisPair {
 	/** Returns all values in the range [0..1], even Parallelism */
 	public ValuePair getNormalizedMetric(Metrics metric, int numBins) {
 		switch (metric) {
-		//		case NumCrossings:
-		//			ValuePair n = getNumCrossings(numBins);
-		//			float factor = model.getNumRecords()*(model.getNumRecords()-1)/2;
-		//			ValuePair n_norm = new ValuePair(n.getValue()/factor, n.getInvertedValue()/factor);
-		////			System.out.println("Crossings: "+n_norm);
-		//			return n_norm;
+				case NumCrossings:
+					ValuePair n = getNumCrossings(numBins);
+					float factor = model.getNumRecords()*(model.getNumRecords()-1)/2;
+					ValuePair n_norm = new ValuePair(n.getValue()/factor, n.getInvertedValue()/factor);
+		//			System.out.println("Crossings: "+n_norm);
+					return n_norm;
 		//
 		//		case Overplotting:
 		//			return getDegreeOfOverPlotting(numBins);
@@ -891,9 +891,9 @@ public final class AxisPair {
 		//		case Convergence_Divergence:
 		//			return getConvergence_Divergence(numBins, 30);
 
-		case MutualInformation:
-			ValuePair n = getMutualInfo(numBins);
-			return new ValuePair(n.getValue()/10, n.getInvertedValue()/10);
+//		case MutualInformation:
+//			ValuePair n = getMutualInfo(numBins);
+//			return new ValuePair(n.getValue()/10, n.getInvertedValue()/10);
 
 		default:
 			return new ValuePair(0, 0);
