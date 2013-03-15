@@ -942,13 +942,13 @@ public class OptimizationPanel extends JPanel {
 			//  highestVal = highestVal/(2*(parcoords.getHeight()-(parcoords.getUpperMargin()+parcoords.getLowerMargin())));
 
 			//commented
-			float normalizedMedian = median;
+	      	float normalizedMedian = median;
 			//to normalize within 0-1 range divide by the highest val
 
 			//	System.err.println("median = "+median+", normalizedMedian = "+normalizedMedian);	      
 
 			//commented
-			distanceList = data.getAxisPair(brushIndex, brushIndex+1, parallelDisplay).getDistanceValues(numBins);
+	//		distanceList = data.getAxisPair(brushIndex, brushIndex+1, parallelDisplay).getDistanceValues(numBins);
 			for(int i=0;i<data.getNumRecords();i++)
 			{
 

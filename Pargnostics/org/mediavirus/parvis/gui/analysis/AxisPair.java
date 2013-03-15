@@ -14,13 +14,16 @@ import org.mediavirus.parvis.model.DataSet;
 public final class AxisPair {
 
 	public enum Metrics {
-		NumCrossings(-1),
-		AngleOfCrossings(90),
-	//	PrincipleDirection(1),
-		Parallelism(1),
-		SubSpaceClumping(10);
-	//	MutualInformation(6),
-	//	PixelBasedEntropy(6);
+		//		NumCrossings(-1),
+		//		AngleOfCrossings(90),
+		JointEntropy(10),
+		DistanceEntropy(10),
+		InformationLoss(10);
+		//	PrincipleDirection(1),
+		//		Parallelism(1),
+		//		SubSpaceClumping(10);
+		//	MutualInformation(6),
+		//	PixelBasedEntropy(6);
 		//	Convergence_Divergence(-1),
 		//Overplotting(-1),
 
@@ -55,16 +58,16 @@ public final class AxisPair {
 			//			return (float)(0.5);
 			//		case AngleOfCrossings:
 			//			return (float)(0.5);
-//			case PrincipleDirection :
-//				return (float)(0.5);
-			case Parallelism:
-				return (float)(0.5);
-//			case MutualInformation:
-//				return (float)(1.0);
-				//		case Convergence_Divergence:
-				//			return (float)model.getNumRecords()/10;
-				//		case Overplotting:
-				//			return (float)model.getNumRecords()/10;
+			//			case PrincipleDirection :
+			//				return (float)(0.5);
+			//			case Parallelism:
+			//				return (float)(0.5);
+			//			case MutualInformation:
+			//				return (float)(1.0);
+			//		case Convergence_Divergence:
+			//			return (float)model.getNumRecords()/10;
+			//		case Overplotting:
+			//			return (float)model.getNumRecords()/10;
 			default:
 				return 1;
 
@@ -428,9 +431,11 @@ public final class AxisPair {
 
 		for (float[] row : model.getValues()) 
 		{
-			int bin1 = (int) ((row[dimension1] - model.getMinValue(dimension1)) / (model.getMaxValue(dimension1) - model.getMinValue(dimension1)) * numDataBins);
-			int bin2 = (int) ((row[dimension2] - model.getMinValue(dimension2)) / (model.getMaxValue(dimension2) - model.getMinValue(dimension2)) * numDataBins);
+			int bin1 = value2pixel(row[dimension1], true, false, numDataBins);
+			int bin2 = value2pixel(row[dimension2], false, false, numDataBins);
 			double distance=(double)(bin2-bin1);
+
+			System.err.println("  Distance value  *******************   "+ distance );
 
 			//double normalizedDistance=(distance/(numDataBins));
 
@@ -522,9 +527,9 @@ public final class AxisPair {
 				int rowRec2Dim2 = value2pixel(model.getValues(rec2)[dimension2], false, false, numBins);
 
 				int dist = (rowRec1Dim1 - rowRec2Dim1)+(rowRec1Dim2-rowRec2Dim2);
-		//	    if(dist<(2*numBins)|| dist>(2*numBins))
-					//	System.err.println("Distance  "+ dist);
-			//	System.err.println("val1 " +model.getValues(dimension1)[rec1]+ " val2 " +rowRec2Dim1 +" val3 " +rowRec1Dim2 + " val4 " +rowRec2Dim2);
+				//	    if(dist<(2*numBins)|| dist>(2*numBins))
+				//	System.err.println("Distance  "+ dist);
+				//	System.err.println("val1 " +model.getValues(dimension1)[rec1]+ " val2 " +rowRec2Dim1 +" val3 " +rowRec1Dim2 + " val4 " +rowRec2Dim2);
 				distanceHistogramScatter[dist+ (2*numBins)]++;
 
 
@@ -636,6 +641,57 @@ public final class AxisPair {
 		return jointEntropyCached;
 
 	}
+
+
+	public float getKLDivergence(int numPixelBins){
+
+
+		int numDataBins = model.getNumRecords();
+		int[][] imageHist= model.get2DHistogram(dimension1,dimension2, numPixelBins);
+		int[][] dataHist = model.get2DHistogram(dimension1,dimension2, model.getNumRecords());
+
+
+		float[] imageProbabilityArray = new float[model.getValues().size()];
+		float[] dataProbabilityArray =  new float[model.getValues().size()];
+
+		for(int recordNum=0; recordNum<model.getValues().size(); recordNum++)
+		{
+			float val1 = model.getValues().get(recordNum)[dimension1];
+			float val2 = model.getValues().get(recordNum)[dimension2];
+			val1 = val1 - model.getMinValue(dimension1);
+			val2 = val2 - model.getMinValue(dimension2);
+
+			int pixelbin1 = (int) (numPixelBins * (val1 / (model.getMaxValue(dimension1)-model.getMinValue(dimension1))));
+			int pixelbin2 = (int) (numPixelBins * (val2 / (model.getMaxValue(dimension2)-model.getMinValue(dimension2))));
+
+			int databin1 = (int) (numDataBins * (val1 / (model.getMaxValue(dimension1)- model.getMinValue(dimension1))));
+			int databin2 = (int) (numDataBins * (val2 / (model.getMaxValue(dimension2)- model.getMinValue(dimension2))));
+
+			imageProbabilityArray[recordNum] = imageHist[pixelbin1][pixelbin2]/(float)(imageHist.length);
+			dataProbabilityArray[recordNum] =  dataHist[databin1][databin2]/(float)(dataHist.length);
+
+
+		}
+
+
+		float klDiv = 0f;
+
+		for (int i = 0; i <imageProbabilityArray.length; ++i) {
+			if (imageProbabilityArray[i] == 0) { continue; }
+			if (dataProbabilityArray[i] == 0.0) { continue; } 
+
+			klDiv += imageProbabilityArray[i] * Math.log( imageProbabilityArray[i] / dataProbabilityArray[i]);
+		}
+
+		System.err.println(" KLDiv    *********************  " +klDiv);
+		klDiv= (float)(klDiv/LOG_BASE_2);
+
+		return klDiv;
+	}
+
+
+
+
 
 
 	// TODO: Take inversions into account. Currently only does the non-inverted case.
@@ -843,24 +899,24 @@ public final class AxisPair {
 		//		case Convergence_Divergence:
 		//			return getConvergence_Divergence(numBins, 30);
 
-//		case PrincipleDirection :
-//
-//			float medianParallelism = getParallelism(numBins).x;
-//			ValuePair medParallelism = new ValuePair(medianParallelism, medianParallelism);
-//			return medParallelism;
+		//		case PrincipleDirection :
+		//
+		//			float medianParallelism = getParallelism(numBins).x;
+		//			ValuePair medParallelism = new ValuePair(medianParallelism, medianParallelism);
+		//			return medParallelism;
 
-		case Parallelism :
-			float rangeParallelism = getParallelism(numBins).y;
-			ValuePair rangParallelism = new ValuePair(rangeParallelism, rangeParallelism);
-			return rangParallelism;
-
-		case SubSpaceClumping :
-			float averageClumping = getSubSpaceConcentration(numBins, 50)/(float)500;
-			ValuePair clumping = new ValuePair(averageClumping, averageClumping);
-			return clumping;
-
-//		case MutualInformation:
-//			return getMutualInfo(numBins);
+		//		case Parallelism :
+		//			float rangeParallelism = getParallelism(numBins).y;
+		//			ValuePair rangParallelism = new ValuePair(rangeParallelism, rangeParallelism);
+		//			return rangParallelism;
+		//
+		//		case SubSpaceClumping :
+		//			float averageClumping = getSubSpaceConcentration(numBins, 50)/(float)500;
+		//			ValuePair clumping = new ValuePair(averageClumping, averageClumping);
+		//			return clumping;
+		//
+		//			//		case MutualInformation:
+		//			//			return getMutualInfo(numBins);
 
 		default:
 			return new ValuePair(0, 0);
@@ -868,35 +924,42 @@ public final class AxisPair {
 	}	
 
 	/** Returns all values in the range [0..1], even Parallelism */
-	public ValuePair getNormalizedMetric(Metrics metric, int numBins) {
+	public float getNormalizedMetric(Metrics metric, int numBins) {
 		switch (metric) {
-				case NumCrossings:
-					ValuePair n = getNumCrossings(numBins);
-					float factor = model.getNumRecords()*(model.getNumRecords()-1)/2;
-					ValuePair n_norm = new ValuePair(n.getValue()/factor, n.getInvertedValue()/factor);
-		//			System.out.println("Crossings: "+n_norm);
-					return n_norm;
-		//
-		//		case Overplotting:
-		//			return getDegreeOfOverPlotting(numBins);
-		//
-		//		case AngleOfCrossings:
-		//			return getAngleOfCrossingMedian(numBins);
-		//
-		////		case Parallelism:
-		////		//	n = getParallelism(numBins);
-		////			n_norm = new ValuePair(Math.abs(n.getValue()), Math.abs(n.getInvertedValue()));
-		////			return n_norm;
-		//
-		//		case Convergence_Divergence:
-		//			return getConvergence_Divergence(numBins, 30);
+		case JointEntropy:
+			float je = getJointEntropy(numBins)/10;
 
-//		case MutualInformation:
-//			ValuePair n = getMutualInfo(numBins);
-//			return new ValuePair(n.getValue()/10, n.getInvertedValue()/10);
+
+			//			System.out.println("Crossings: "+n_norm);
+			return je;
+
+		case DistanceEntropy:
+			float de = computeDistanceEntropy(numBins)/10;
+
+
+			//			System.out.println("Crossings: "+n_norm);
+			return de;
+			//
+			//		case Overplotting:
+			//			return getDegreeOfOverPlotting(numBins);
+			//
+			//		case AngleOfCrossings:
+			//			return getAngleOfCrossingMedian(numBins);
+			//
+			////		case Parallelism:
+			////		//	n = getParallelism(numBins);
+			////			n_norm = new ValuePair(Math.abs(n.getValue()), Math.abs(n.getInvertedValue()));
+			////			return n_norm;
+			//
+			//		case Convergence_Divergence:
+			//			return getConvergence_Divergence(numBins, 30);
+
+			//		case MutualInformation:
+			//			ValuePair n = getMutualInfo(numBins);
+			//			return new ValuePair(n.getValue()/10, n.getInvertedValue()/10);
 
 		default:
-			return new ValuePair(0, 0);
+			return 0;
 		}
 	}
 

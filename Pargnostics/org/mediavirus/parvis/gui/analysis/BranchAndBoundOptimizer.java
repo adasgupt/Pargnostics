@@ -96,11 +96,11 @@ public class BranchAndBoundOptimizer {
 				for (Metrics metric : Metrics.values())
 					if (weights[metric.ordinal()] != 0) {
 						if (maximize[metric.ordinal()]) {
-							m += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins).getValue();
-							m_inverted += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins).getInvertedValue();
+							m += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
+							m_inverted += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
 						} else {
-							m += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins).getValue());
-							m_inverted += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins).getInvertedValue());
+							m += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
+							m_inverted += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
 						}
 					}
 				if (m < m_inverted || !invert) {
