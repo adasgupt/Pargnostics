@@ -1534,7 +1534,7 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 //					displayMetrics[Metrics.Overplotting.ordinal()] = degreeOfOverplotting;
 					
 					float binEntropy = parallelDisplay.getModel().getAbsoluteEntropy(numBins, hoverAxis);
-					float conditionalEntropy = parallelDisplay.getModel().getAxisPair(dim1, dim2, parallelDisplay).getJointEntropy(numBins);
+					float conditionalEntropy = parallelDisplay.getModel().getAxisPair(dim1, dim2, parallelDisplay).computeDistanceEntropy(numBins);
 					float pixelBasedEntropy = parallelDisplay.getDisplayUI().pixelBasedEntropyArray[hoverAxis];
 							    System.err.println("PE  " +pixelBasedEntropy + "   "  + "Conditional Entropy " + conditionalEntropy);
 				//	displayMetrics[Metrics.PixelBasedEntropy.ordinal()] = pixelBasedEntropy;

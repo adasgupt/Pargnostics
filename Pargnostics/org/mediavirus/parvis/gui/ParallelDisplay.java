@@ -65,10 +65,10 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	// private float axisOffset[] = null;
 	/** axis -> dimension linking. */
 	// protected int axisOrder[] = null;
-	protected Axis axes[];
+	public Axis axes[];
 
 	/** Helper class for string the properties of an axis. */
-	class Axis {
+	public class Axis {
 		int dimension;
 
 		float scale;
@@ -123,9 +123,9 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	ParallelPopup popupMenu;
 
 	private BasicParallelDisplayUI displayUI;
-	
+
 	HashMap<Integer, HashMap<Integer, Float>> pixelDataMapForDataset = new HashMap<Integer, HashMap<Integer, Float>>();
-	
+
 	private HashMap<Integer, Float> pixelDataMapPerDimension;
 
 	private MatrixMetaView matrixView;
@@ -144,22 +144,26 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		this.matrixView = matrixView;
 	}
 	
+	public Axis[] getAxes(){
+		return axes;
+	}
+
 	public HashMap<Integer, HashMap<Integer, Float>> getMap(){
 
 		return pixelDataMapForDataset;
 	}
-	
+
 	public void setMap(HashMap<Integer, HashMap<Integer, Float>> map){
 
 		pixelDataMapForDataset = map;
 	}
 
-	
+
 	public HashMap<Integer, Float> getDimensionMap(){
 
 		return pixelDataMapPerDimension;
 	}
-	
+
 	public void setDimensionMap(HashMap<Integer, Float> map){
 
 		pixelDataMapPerDimension = map;
@@ -265,40 +269,40 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		repaint();
 	}
 
- public void addAxesToDraw(List<Integer> axisList) {
-	 
-	 Axis newAxes[] = new Axis[axisList.size()];
-	 Integer axisSetArray[]=new Integer[axisList.size()];
-	 
-	 for(int i=0;i<axisList.size();i++)
-	 {
-		 
-		 axisSetArray[i] = axisList.get(i);
-	 }
-	
-	 for(int i=0; i<axisSetArray.length ;i++)
-	 {
-	 int axis1=axisSetArray[i];
-	 Axis newAxis1 = new Axis(axis1, model.getMinValue(axis1) - model.getMaxValue(axis1), model.getMaxValue(axis1),
+	public void addAxesToDraw(List<Integer> axisList) {
+
+		Axis newAxes[] = new Axis[axisList.size()];
+		Integer axisSetArray[]=new Integer[axisList.size()];
+
+		for(int i=0;i<axisList.size();i++)
+		{
+
+			axisSetArray[i] = axisList.get(i);
+		}
+
+		for(int i=0; i<axisSetArray.length ;i++)
+		{
+			int axis1=axisSetArray[i];
+			Axis newAxis1 = new Axis(axis1, model.getMinValue(axis1) - model.getMaxValue(axis1), model.getMaxValue(axis1),
 					model.getAxisLabel(axis1));
-     newAxes[i]=newAxis1;
-	
-	 }
-	 axes = newAxes;
-		
-	 deepRepaint = true;
-	 repaint();	
+			newAxes[i]=newAxis1;
+
+		}
+		axes = newAxes;
+
+		deepRepaint = true;
+		repaint();	
 	}
- 
- //used from the matrix meta view
- public void updateAxes(Axis[] newAxes){
-	 
-	 axes = newAxes;
-		
-	 deepRepaint = true;
-	 repaint();	
-	 
- }
+
+	//used from the matrix meta view
+	public void updateAxes(Axis[] newAxes){
+
+		axes = newAxes;
+
+		deepRepaint = true;
+		repaint();	
+
+	}
 	/**
 	 * Removes an axis from the display.
 	 * 
@@ -321,13 +325,13 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		axes = newAxes;
 
 		setupPopup();
-		
+
 		matrixView.updateCurrentAxes(axes);
 
 		deepRepaint = true;
 		repaint();
 	}
-	
+
 
 	/**
 	 * Sets the model to display.
@@ -345,10 +349,10 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		}
 
 		this.model = model;
-        
+
 		if (model != null) {
 			model.addChangeListener(this);
-            
+
 			axes = new Axis[model.getNumDimensions()];
 			String axisNames[] = new String[model.getNumDimensions()];
 			brushValues = new float[model.getNumRecords()];
@@ -365,8 +369,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 			popupMenu.setVisibleAxes(axisNames);
 
 		}
-        
-	//	matrixView.updateCurrentAxes(axes);
+
+		//	matrixView.updateCurrentAxes(axes);
 		currentBrush = null;
 
 		deepRepaint = true;
@@ -382,7 +386,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	public void resetAll() {
 		setCurrentBrush(null);
 		setModel(model);
-		
+
 		setEditMode(REORDER);
 		repaint();
 	}
@@ -426,7 +430,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	 * @return The model that is currently displayed ba the component.
 	 */
 	public DataSet getModel() {
-		
+
 		return model;
 	}
 
@@ -436,7 +440,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	public int getBorderV() {
 		return displayUI.getBorderV();
 	}
-	
+
 	// TODO These methods have to go; access the model directly if necessary, don't add lots of indirections
 	/**
 	 * Returns the number of Records in the model.
@@ -787,37 +791,39 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	}
 
 
-	public void reOrder(int bestPerm[], boolean[] axisInversions){
+	public void reOrder(int bestPerm[]){
 
 		Axis[] temp = new Axis[axes.length];
 
 		for(int i = 0; i < axes.length; i++) {
 
 			int elementDimension = bestPerm[i];
+			
 
 			for(int j = 0; j < axes.length; j++) {	
 
-				if(elementDimension == axes[j].dimension) {	
+				if(axes[elementDimension].dimension == axes[j].dimension) {	
 					Axis element = axes[j];
 					temp[i] = element;
 				}
 			}
-			if (axisInversions[i] == false) {
-				if (temp[i].scale > 0)
-					temp[i].offset += temp[i].scale;
-				temp[i].scale = -Math.abs(temp[i].scale);
-			} else {
-				if (temp[i].scale < 0)
-					temp[i].offset += temp[i].scale;
-				temp[i].scale = Math.abs(temp[i].scale);
-			}
+
+			if (temp[i].scale > 0)
+				temp[i].offset += temp[i].scale;
+
+			//for inversion
+			//			else {
+			//				if (temp[i].scale < 0)
+			//					temp[i].offset += temp[i].scale;
+			//				temp[i].scale = Math.abs(temp[i].scale);
+			//			}
 		}
 		axes = temp;
 
 		deepRepaint=true;
 		repaint();
 	}
-	
+
 	private Vector<ProgressListener> progressListeners = new Vector<ProgressListener>();
 
 	public void addProgressListener(ProgressListener l) {
@@ -859,12 +865,12 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 
 	/** Holds value of property currentBrush. */
 	private Brush currentBrush;
-	
+
 
 	/**
 	 * Fills the preferences hashtable with initial default values.
 	 */
-	 public void setDefaultPreferences() {
+	public void setDefaultPreferences() {
 		preferences.put("brushRadius", new Float(0.2f));
 		preferences.put("softBrush", new Boolean(true));
 		preferences.put("hoverText", new Boolean(false));
@@ -874,179 +880,179 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		preferences.put("histogramWidth", new Integer(HISTO_TOTALREC));
 		preferences.put("recordColor", Color.black);
 		preferences.put("brushColor", Color.black);
-	 }
+	}
 
-	 public void setFloatPreference(String key, float val) {
-		 Object obj = new Float(val);
-		 preferences.put(key, obj);
-	 }
+	public void setFloatPreference(String key, float val) {
+		Object obj = new Float(val);
+		preferences.put(key, obj);
+	}
 
-	 public void setIntPreference(String key, int val) {
-		 Object obj = new Integer(val);
-		 preferences.put(key, obj);
-	 }
+	public void setIntPreference(String key, int val) {
+		Object obj = new Integer(val);
+		preferences.put(key, obj);
+	}
 
-	 public void setBoolPreference(String key, boolean val) {
-		 Object obj = new Boolean(val);
-		 preferences.put(key, obj);
-	 }
+	public void setBoolPreference(String key, boolean val) {
+		Object obj = new Boolean(val);
+		preferences.put(key, obj);
+	}
 
-	 public void setPreference(String key, Object val) {
-		 preferences.put(key, val);
-	 }
+	public void setPreference(String key, Object val) {
+		preferences.put(key, val);
+	}
 
-	 public Object getPreference(String key) {
-		 return preferences.get(key);
-	 }
+	public Object getPreference(String key) {
+		return preferences.get(key);
+	}
 
-	 public Color getColorPreference(String key) {
-		 Object obj = preferences.get(key);
-		 if ((obj != null) && (obj instanceof Color)) {
-			 return (Color) obj;
-		 }
-		 // we should throw an exception here;
-		 else
-			 return null;
-	 }
+	public Color getColorPreference(String key) {
+		Object obj = preferences.get(key);
+		if ((obj != null) && (obj instanceof Color)) {
+			return (Color) obj;
+		}
+		// we should throw an exception here;
+		else
+			return null;
+	}
 
-	 public boolean getBoolPreference(String key) {
-		 Object obj = preferences.get(key);
-		 if ((obj != null) && (obj instanceof Boolean)) {
-			 return ((Boolean) obj).booleanValue();
-		 }
-		 // we should throw an exception here;
-		 else
-			 return false;
-	 }
+	public boolean getBoolPreference(String key) {
+		Object obj = preferences.get(key);
+		if ((obj != null) && (obj instanceof Boolean)) {
+			return ((Boolean) obj).booleanValue();
+		}
+		// we should throw an exception here;
+		else
+			return false;
+	}
 
-	 public float getFloatPreference(String key) {
-		 Object obj = preferences.get(key);
-		 if ((obj != null) && (obj instanceof Float)) {
-			 return ((Float) obj).floatValue();
-		 }
-		 // we should throw an exception here;
-		 else
-			 return 0.0f;
-	 }
+	public float getFloatPreference(String key) {
+		Object obj = preferences.get(key);
+		if ((obj != null) && (obj instanceof Float)) {
+			return ((Float) obj).floatValue();
+		}
+		// we should throw an exception here;
+		else
+			return 0.0f;
+	}
 
-	 public int getIntPreference(String key) {
-		 Object obj = preferences.get(key);
-		 if ((obj != null) && (obj instanceof Integer)) {
-			 return ((Integer) obj).intValue();
-		 }
-		 // we should throw an exception here;
-		 else
-			 return 0;
-	 }
+	public int getIntPreference(String key) {
+		Object obj = preferences.get(key);
+		if ((obj != null) && (obj instanceof Integer)) {
+			return ((Integer) obj).intValue();
+		}
+		// we should throw an exception here;
+		else
+			return 0;
+	}
 
-	 /**
-	  * Initializes the popup menu.
-	  */
-	 protected void setupPopup() {
-		 int i;
+	/**
+	 * Initializes the popup menu.
+	 */
+	protected void setupPopup() {
+		int i;
 
-		 String visible[] = new String[axes.length];
-		 for (i = 0; i < axes.length; i++) {
-			 visible[i] = axes[i].label;
-		 }
+		String visible[] = new String[axes.length];
+		for (i = 0; i < axes.length; i++) {
+			visible[i] = axes[i].label;
+		}
 
-		 // String available[] = new String[model.getNumDimensions()];
-		 // for (i = 0; i<available.length; i++){
-		 // available[i] = model.getDimensionLabel(i);
-		 // }
+		// String available[] = new String[model.getNumDimensions()];
+		// for (i = 0; i<available.length; i++){
+		// available[i] = model.getDimensionLabel(i);
+		// }
 
-		 popupMenu.setVisibleAxes(visible);
-		 // popupMenu.setAvailableAxes(available);
+		popupMenu.setVisibleAxes(visible);
+		// popupMenu.setAvailableAxes(available);
 
-	 }
+	}
 
-	 /**
-	  * Helper class: the popup menu.
-	  */
-	 class ParallelPopup extends JPopupMenu implements ActionListener {
+	/**
+	 * Helper class: the popup menu.
+	 */
+	class ParallelPopup extends JPopupMenu implements ActionListener {
 
-		 JMenu addAxisMenu;
+		JMenu addAxisMenu;
 
-		 JMenu removeAxisMenu;
+		JMenu removeAxisMenu;
 
-		 ParallelDisplay parent;
+		ParallelDisplay parent;
 
-		 int targetRegion = 0;
+		int targetRegion = 0;
 
-		 ParallelPopup(ParallelDisplay parent) {
-			 super();
+		ParallelPopup(ParallelDisplay parent) {
+			super();
 
-			 this.parent = parent;
+			this.parent = parent;
 
-			 addAxisMenu = new JMenu("Add axis");
-			 removeAxisMenu = new JMenu("Remove axis");
+			addAxisMenu = new JMenu("Add axis");
+			removeAxisMenu = new JMenu("Remove axis");
 
-			 this.add(addAxisMenu);
-			 this.add(removeAxisMenu);
-		 }
+			this.add(addAxisMenu);
+			this.add(removeAxisMenu);
+		}
 
-		 void setVisibleAxes(String[] axes) {
-			 removeAxisMenu.removeAll();
+		void setVisibleAxes(String[] axes) {
+			removeAxisMenu.removeAll();
 
-			 for (int i = 0; i < axes.length; i++) {
-				 JMenuItem item = new JMenuItem();
-				 item.setText(axes[i]);
-				 item.setName("R" + i);
-				 item.addActionListener(this);
+			for (int i = 0; i < axes.length; i++) {
+				JMenuItem item = new JMenuItem();
+				item.setText(axes[i]);
+				item.setName("R" + i);
+				item.addActionListener(this);
 
-				 removeAxisMenu.add(item);
-			 }
-		 }
+				removeAxisMenu.add(item);
+			}
+		}
 
-		 void setAvailableAxes(String[] axes) {
-			 addAxisMenu.removeAll();
+		void setAvailableAxes(String[] axes) {
+			addAxisMenu.removeAll();
 
-			 for (int i = 0; i < axes.length; i++) {
-				 JMenuItem item = new JMenuItem();
-				 item.setText(axes[i]);
-				 item.setName("A" + i);
-				 item.addActionListener(this);
+			for (int i = 0; i < axes.length; i++) {
+				JMenuItem item = new JMenuItem();
+				item.setText(axes[i]);
+				item.setName("A" + i);
+				item.addActionListener(this);
 
-				 addAxisMenu.add(item);
-			 }
-		 }
+				addAxisMenu.add(item);
+			}
+		}
 
-		 public void actionPerformed(ActionEvent e) {
-			 System.out.println("Context menu action");
-			 JMenuItem item = (JMenuItem) e.getSource();
-			 if (item.getName().startsWith("R")) {
-				 int num = Integer.parseInt(item.getName().substring(1));
-				 parent.removeAxis(num);
-			 } else if (item.getName().startsWith("A")) {
-				 int num = Integer.parseInt(item.getName().substring(1));
-				 System.out.println("adding axis " + num);
-				 parent.addAxis(num, targetRegion);
-			 }
-		 }
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Context menu action");
+			JMenuItem item = (JMenuItem) e.getSource();
+			if (item.getName().startsWith("R")) {
+				int num = Integer.parseInt(item.getName().substring(1));
+				parent.removeAxis(num);
+			} else if (item.getName().startsWith("A")) {
+				int num = Integer.parseInt(item.getName().substring(1));
+				System.out.println("adding axis " + num);
+				parent.addAxis(num, targetRegion);
+			}
+		}
 
-		 public void setTargetRegion(int region) {
-			 targetRegion = region;
-		 }
-	 }
+		public void setTargetRegion(int region) {
+			targetRegion = region;
+		}
+	}
 
-	 public BasicParallelDisplayUI getDisplayUI() {
-		 return displayUI;
-	 }
+	public BasicParallelDisplayUI getDisplayUI() {
+		return displayUI;
+	}
 
 	@Override
 	public void setMetric(Metrics metric) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 	@Override
 	public void setCurrentAxis(int axis) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
-	
+
 
 }

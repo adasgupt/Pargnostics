@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.PriorityQueue;
 
 import org.mediavirus.parvis.gui.ParallelDisplay;
+import org.mediavirus.parvis.gui.ParallelDisplay.Axis;
 import org.mediavirus.parvis.gui.analysis.AxisPair.Metrics;
 import org.mediavirus.parvis.model.DataSet;
 
@@ -78,10 +79,14 @@ public class BranchAndBoundOptimizer {
 		 										{11, 7, 9, Float.POSITIVE_INFINITY, 2},
 		 										{18, 7, 17, 4, Float.POSITIVE_INFINITY}};
 	
-	public BranchAndBoundOptimizer(ParallelDisplay display, float[] weights, boolean maximize[], int numBins) {
-	
+	public BranchAndBoundOptimizer(ParallelDisplay display, boolean selected[], boolean maximize, int numBins) {
+		
 		DataSet model = display.getModel();
-		numDimensions = model.getNumDimensions();
+		numDimensions = display.getAxes().length;
+		
+		Axis[] currentAxes = display.getAxes();
+		
+		
 		costs = new float[numDimensions][numDimensions];
 		axisPairInversions = new boolean[numDimensions];
 		boolean invert = false;
@@ -91,16 +96,18 @@ public class BranchAndBoundOptimizer {
 		for (int i = 0; i < numDimensions; i++) {
 			costs[i][i] = Float.POSITIVE_INFINITY;
 			for (int j = i + 1; j < numDimensions; j++) {
+				
+				
 				float m = 0;
 				float m_inverted = 0;
 				for (Metrics metric : Metrics.values())
-					if (weights[metric.ordinal()] != 0) {
-						if (maximize[metric.ordinal()]) {
-							m += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
-							m_inverted += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
+					if (selected[metric.ordinal()]) {
+						if (maximize) {
+							m +=  model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
+							m_inverted += model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
 						} else {
-							m += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
-							m_inverted += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
+							m += (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
+							m_inverted += (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
 						}
 					}
 				if (m < m_inverted || !invert) {
@@ -137,6 +144,66 @@ public class BranchAndBoundOptimizer {
 			
 		makeMinCosts();
 	}
+	
+//	public BranchAndBoundOptimizer(ParallelDisplay display, float[] weights, boolean maximize[], int numBins) {
+//	
+//		DataSet model = display.getModel();
+//		numDimensions = model.getNumDimensions();
+//		costs = new float[numDimensions][numDimensions];
+//		axisPairInversions = new boolean[numDimensions];
+//		boolean invert = false;
+//		
+//		Date start = new Date();
+//		
+//		for (int i = 0; i < numDimensions; i++) {
+//			costs[i][i] = Float.POSITIVE_INFINITY;
+//			for (int j = i + 1; j < numDimensions; j++) {
+//				float m = 0;
+//				float m_inverted = 0;
+//				for (Metrics metric : Metrics.values())
+//					if (weights[metric.ordinal()] != 0) {
+//						if (maximize[metric.ordinal()]) {
+//							m += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
+//							m_inverted += weights[metric.ordinal()] * model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins);
+//						} else {
+//							m += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
+//							m_inverted += weights[metric.ordinal()] * (1 - model.getAxisPair(i, j, display).getNormalizedMetric(metric, numBins));
+//						}
+//					}
+//				if (m < m_inverted || !invert) {
+//					costs[i][j] = m;
+//					costs[j][i] = m;
+//					axisPairInversions[i] = false;
+//				} else {
+//					costs[i][j] = m_inverted;
+//					costs[j][i] = m_inverted;
+//					axisPairInversions[i] = true;
+//				}
+////				System.err.print(m+"\t");
+//			}
+////			System.err.println();
+//		}
+//		
+//		Date end = new Date();
+//		System.err.println("Matrix construction took "+(end.getTime()-start.getTime())+"ms");
+//		
+//		System.err.print("Inverted: ");
+//		for (int i = 0; i < numDimensions; i++)
+//			System.err.print(axisPairInversions[i]+", ");
+//		System.err.println();
+//		
+//		float min = Float.POSITIVE_INFINITY;
+//		for (int i = 0; i < numDimensions; i++)
+//			for (int j = 0; j < numDimensions; j++)
+//				if (costs[i][j] < min)
+//					min = costs[i][j];
+//
+//		for (int i = 0; i < numDimensions; i++)
+//			for (int j = 0; j < numDimensions; j++)
+//				costs[i][j] -= min;
+//			
+//		makeMinCosts();
+//	}
 
 	private void makeMinCosts() {
 		float lowerBound = 0;

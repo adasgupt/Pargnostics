@@ -56,6 +56,9 @@ public class OptimizationPanel extends JPanel {
 	private ArrayList<JButton> buttons = new ArrayList<JButton>();
 	JRadioButton sliderButton[]= new JRadioButton[3];
 	JLabel sliderLabel[] = new JLabel[3];
+	String labelText[] = {"Maximize Information content", "Maximize visual saliency", "Minimize information loss"};
+	
+
 	
     
 	private ParallelDisplay parallelDisplay;
@@ -75,6 +78,9 @@ public class OptimizationPanel extends JPanel {
 	private String[] radioButtonNames={"PrincipleDirection", "Parallelism", "Clumping"};
 	private int brushIndex;
 	private JPanel buttonBox;
+	
+	
+	private JCheckBox[] checkedArray = new JCheckBox[Metrics.values().length];
 
 	public OptimizationPanel(ParallelDisplay parallelDisplay) {
 		super();
@@ -91,29 +97,40 @@ public class OptimizationPanel extends JPanel {
 		Box mainBox = new Box(BoxLayout.Y_AXIS);
 		sliderPanel.add(mainBox,"wrap,  w 220, h 600");
 		
-		// setting up the radio buttons for brushing
-		for(int i=0;i<sliderButton.length;i++){
-			sliderLabel[i] = new JLabel(Metrics.values()[i].name());
-			sliderBar[i] = new JSlider(0, 5, 0);
-			sliderBar[i].setMinorTickSpacing(1);
-			sliderBar[i].setMajorTickSpacing(5);
-			sliderBar[i].setPaintTicks(true);
-			sliderBar[i].setSnapToTicks(true);
-			//sliderBar[i].setPaintTrack(false);
-			sliderBar[i].setPaintLabels(true);
-			sliderBar[i].setEnabled(true);
-//			sliderBar[i].addChangeListener(new SliderListener());
-			maximizers[i] = new JCheckBox("Max");
+		// setting up the buttons for optimization
+//		for(int i=0;i<sliderButton.length;i++){
+//			sliderLabel[i] = new JLabel(Metrics.values()[i].name());
+//			sliderBar[i] = new JSlider(0, 5, 0);
+//			sliderBar[i].setMinorTickSpacing(1);
+//			sliderBar[i].setMajorTickSpacing(5);
+//			sliderBar[i].setPaintTicks(true);
+//			sliderBar[i].setSnapToTicks(true);
+//			//sliderBar[i].setPaintTrack(false);
+//			sliderBar[i].setPaintLabels(true);
+//			sliderBar[i].setEnabled(true);
+////			sliderBar[i].addChangeListener(new SliderListener());
+//			maximizers[i] = new JCheckBox("Max");
+//			Box b = new Box(BoxLayout.X_AXIS);
+//			b.add(sliderBar[i]);
+//			b.add(maximizers[i]);
+//			mainBox.add(sliderLabel[i]);
+//			mainBox.add(b);
+////			mainBox.add(sliderBar[i]);
+////			mainBox.add(maximizers[i]);
+//			//group.add(sliderButton[i]);
+//
+//		}
+		
+		for(int i=0;i<sliderLabel.length;i++){
+			sliderLabel[i] = new JLabel(labelText[i]);
+			checkedArray[i] = new JCheckBox();
 			Box b = new Box(BoxLayout.X_AXIS);
-			b.add(sliderBar[i]);
-			b.add(maximizers[i]);
-			mainBox.add(sliderLabel[i]);
+			b.add(checkedArray[i]);
+ 		    b.add(sliderLabel[i]);
 			mainBox.add(b);
-//			mainBox.add(sliderBar[i]);
-//			mainBox.add(maximizers[i]);
-			//group.add(sliderButton[i]);
-
+			
 		}
+		
 
 	//	add(sliderPanel, "wrap");
 
@@ -645,26 +662,53 @@ public class OptimizationPanel extends JPanel {
 //	Optimization criteria	
 
 	private void optimize() {
+		BranchAndBoundOptimizer bb = null;
 		System.err.println("********************");
 	//	System.err.println("Optimizing new");
-		float weights[] = getWeights();
+		boolean selected[] = getSelectedMetric();
 	    boolean maximize[] = getMaximize();
 	    
-		System.err.print("Weights: ");
-		for (float f : weights)
-			System.err.print(f+", ");
+//		System.err.print("Weights: ");
+//		for (float f : weights)
+//			System.err.print(f+", ");
 		System.err.println();
-		BranchAndBoundOptimizer bb = new BranchAndBoundOptimizer(parallelDisplay, weights, maximize, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV());
+		//when minimize, pass false
+		if(selected[0])
+		   bb = new BranchAndBoundOptimizer(parallelDisplay, selected, false, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV());
+		if(selected[1])
+			   bb = new BranchAndBoundOptimizer(parallelDisplay, selected, true, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV());
+		if(selected[2])
+			   bb = new BranchAndBoundOptimizer(parallelDisplay, selected, false, parallelDisplay.getHeight()-2*parallelDisplay.getBorderV());
 		ArrayList<Integer> bestPerm = bb.optimize();
+		
 
 		int bestPermArray[] = new int[bestPerm.size()];
 		for (int i = 0; i < bestPermArray.length; i++)
 			bestPermArray[i] = bestPerm.get(i);
 		
-		parallelDisplay.reOrder(bestPermArray, bb.getAxisInversions());
+		parallelDisplay.reOrder(bestPermArray);
 
 	}
 
+	private boolean[] getSelectedMetric(){
+		
+		boolean selected[] = new boolean[Metrics.values().length];
+		
+		for (int i=0; i<checkedArray .length; i++)
+		{
+			
+			selected[i] = checkedArray[i].isSelected();
+			
+			
+			
+			
+		}
+		
+		
+		return selected;
+		
+		
+	}
 
 	private boolean[] getMaximize() {
 		boolean maximize[] = new boolean[5];

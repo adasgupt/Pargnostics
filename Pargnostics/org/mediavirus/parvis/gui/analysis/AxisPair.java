@@ -177,6 +177,7 @@ public final class AxisPair {
 	private HashMap<Integer, Integer> pixelDataMap;
 
 	public AxisPair(DataSet m, int axis1, int axis2, ParallelDisplay gl) {
+		
 		dimension1 = axis1;
 		dimension2 = axis2;
 		model = m;
@@ -934,7 +935,9 @@ public final class AxisPair {
 			return je;
 
 		case DistanceEntropy:
-			float de = computeDistanceEntropy(numBins)/10;
+			float de = 1-computeDistanceEntropy(numBins)/10;
+		//	System.err.println("Normalized de  " +de);
+			
 
 
 			//			System.out.println("Crossings: "+n_norm);
@@ -1282,6 +1285,8 @@ public final class AxisPair {
 			sumEntropy =(float)( sumEntropy + entropy);
 		}
 
+		
+		System.err.println("Distance entropy  ++++++++++++++ " +sumEntropy);
 		return sumEntropy;
 
 
