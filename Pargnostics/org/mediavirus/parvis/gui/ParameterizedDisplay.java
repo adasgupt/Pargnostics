@@ -249,23 +249,23 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 			for(int dim1=1; dim1<data.getNumDimensions(); dim1++)
 			{
-				for(int dim2=0; dim2< dim1; dim2++)
+				for(int dim2=0; dim2<dim1; dim2++)
 				{
 					callCount++;
-					if(callCount>= 2*totalNumberOfCombinations)
+					if(callCount>totalNumberOfCombinations)
 						return;
 					else
 					{
 
-						//drawScatterplot(g2, data, dim1, dim2);
-						drawParallelCoordinatesplot(g2, data, dim1, dim2);
+					//	drawScatterplot(g2, data, dim1, dim2);
+					  drawParallelCoordinatesplot(g2, data, dim1, dim2);
 
 					}
 				}
 
 			}
 
-			processMetrics();
+			//processMetrics();
 
 
 			//System.err.println("Call count " +callCount);
@@ -298,12 +298,12 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			int ascendingIndex =0;
 			
 			//DistanceEntropy
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.DistanceEntropy));
+			Collections.sort(metricsList, new SortMetrics(MetaMetrics.JointEntropy));
 			//ascending order
 			for(int i=imageList.size()-1; i>=(imageList.size()-3); i--)
 			{
 				AxisPairMetrics metricObject = metricsList.get(i);
-				printImages(ascendingIndex, metricObject, 0, MetaMetrics.DistanceEntropy);
+				printImages(ascendingIndex, metricObject, 0, MetaMetrics.JointEntropy);
 				ascendingIndex++;
 			}
 			//descending order
@@ -311,7 +311,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			for(int i= 0; i<3; i++)
 			{
 				AxisPairMetrics metricObject = metricsList.get(i);
-				printImages(i, metricObject, 1, MetaMetrics.DistanceEntropy);
+				printImages(i, metricObject, 1, MetaMetrics.JointEntropy);
 			}
 
 			
@@ -549,7 +549,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 
 		int numBins = (int)param.y;
-	//	int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogramScatter(numBins, false);
+	    //int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogramScatter(numBins, false);
 		int[] distanceHistogram = mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getDistanceHistogram(numBins, false);
 
 		double probabilityValue = 0;
@@ -644,38 +644,21 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 		int h = this.getHeight();
 
+		//setting up the BufferedImage properties
 		BufferedImage bufferImg = new BufferedImage(this.getWidth(), this.getHeight(),BufferedImage.TYPE_4BYTE_ABGR);
 		bufferImg = (BufferedImage)(this.createImage(w, h));
-
-
-
-		//setting up the BufferedImage properties
-		ig = bufferImg.createGraphics();
+        ig = bufferImg.createGraphics();
 		ig.setColor(this.getBackground());
 		ig.fillRect(0, 0, this.getWidth(), this.getHeight());
+		ig.drawLine(0, 0, 0, (int)param.y);
+		ig.drawLine((int)param.x, 0, (int)param.x, (int)param.y);
 
 		float scale1 = (data.getMaxValue(axis1) - data.getMinValue(axis1));
 		float scale2 = (data.getMaxValue(axis2) - data.getMinValue(axis2));
 		float axisOffset1 = data.getMinValue(axis1);
 		float axisOffset2 = data.getMinValue(axis2);
 
-		//Color code background for Crossings:Low medium and high
-		//		if(filterFlag !=-1)
-		//		{
-		//			float val = getFilteredValue( axis1, axis2 );
-		//
-		//			//Color code backgorund for Crossings:Low medium and high
-		//			Color backGroundColor = getColor(val);
-		//
-		//
-		//			g2d.setColor(backGroundColor);
-		//			g2d.fillRect( locX, locY, scatterInstanceWidth, scatterInstanceHeight);
-		//
-		//		}
 
-
-		ig.drawLine(0, 0, 0, (int)param.y);
-		ig.drawLine((int)param.x, 0, (int)param.x, (int)param.y);
 
 		/*
 		 * the loop for rendering all the lines in parallel coordinates
@@ -691,21 +674,23 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			ig.drawLine(0, v1, (int)param.x, v2);	
 		}
 
+		//deleted
 		g2.drawImage(bufferImg, null, 0, 0);
 		imageList.add(bufferImg);
 
 		AxisPairMetrics metricObject = new AxisPairMetrics(axis1, axis2);
 
 		metricObject.setDistanceEntropy(computeDistanceEntropy(axis1,axis2));
-		metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
-		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
-		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
+     	metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
+	//	metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
+	//	metricObject.setColorEntropy((float)computeEntropy(bufferImg));
 		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/100)+(2*(1-(metricObject.getGrayEntropy()/10))))/3);
-		metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
+       metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
 
 		//setUseColor(true);
-
-		metricObject.storeImage(bufferImg);
+		
+//deleted
+	metricObject.storeImage(bufferImg);
 
 
 		metricsList.add(metricObject);
@@ -805,7 +790,7 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 			ig.setColor(new Color(0,0,0));
 
 			//ig.drawLine((int)(v1), (int)(param.y-v2), (int)(v1)+2,(int)(param.y-v2)+2);	
-			ig.drawOval((int)(v1), (int)(param.y-v2), 2, 2);
+			ig.drawOval((int)(v1), (int)(param.y-v2), 4, 4);
 		}
 
 		g2.drawImage(bufferImg, null, 0, 0);

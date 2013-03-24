@@ -651,17 +651,20 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 		}
 
 
-		if(numDimensions>1)
-			pixelBasedEntropyArray=new float[numDimensions-1];
-			for (int dimensionNumber = 0; dimensionNumber < (numDimensions - 1); dimensionNumber++) 
-			{
-
-				double entropy = computeEntropy(dimensionNumber);
-//				System.out.println("Entropy  " + entropy);
-	            pixelBasedEntropyArray[dimensionNumber]=(float)entropy;
-
-
-			}
+//		if(numDimensions>1)
+//			pixelBasedEntropyArray=new float[numDimensions-1];
+//			for (int dimensionNumber = 0; dimensionNumber < (numDimensions - 1); dimensionNumber++) 
+//			{
+//
+//				double entropy = computeEntropy(dimensionNumber);
+////				System.out.println("Entropy  " + entropy);
+//	            pixelBasedEntropyArray[dimensionNumber]=(float)entropy;
+//
+//
+//			}
+			
+			parallelDisplay.getOptimizationPanelInstance().setComboBoxItems(0);
+			
 	}
 
 	public void clearImage(){
@@ -759,8 +762,8 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 			v2 = getYValue(num, j, comp);
 			//v2 = getYValue(num, stopAxis, comp);
 			//colorcode
-		//	g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
-			g2.setColor(new Color(0.5f,0.5f,0.5f, 0.6f));
+	//		g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
+		   g2.setColor(new Color(0.5f,0.5f,0.5f, 0.6f));
 			
 			rPath.lineTo(stepx * j, getYValue(num, j, comp));
 			
@@ -1535,8 +1538,8 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 					
 					float binEntropy = parallelDisplay.getModel().getAbsoluteEntropy(numBins, hoverAxis);
 					float conditionalEntropy = parallelDisplay.getModel().getAxisPair(dim1, dim2, parallelDisplay).computeDistanceEntropy(numBins);
-					float pixelBasedEntropy = parallelDisplay.getDisplayUI().pixelBasedEntropyArray[hoverAxis];
-							    System.err.println("PE  " +pixelBasedEntropy + "   "  + "Conditional Entropy " + conditionalEntropy);
+					//float pixelBasedEntropy = parallelDisplay.getDisplayUI().pixelBasedEntropyArray[hoverAxis];
+					//		    System.err.println("PE  " +pixelBasedEntropy + "   "  + "Conditional Entropy " + conditionalEntropy);
 				//	displayMetrics[Metrics.PixelBasedEntropy.ordinal()] = pixelBasedEntropy;
 					
 //					float distanceEntropy = parallelDisplay.getModel().getAxisPair(dim1, dim2, parallelDisplay).getDistanceEntropy(numBins);

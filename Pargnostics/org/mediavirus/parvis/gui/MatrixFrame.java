@@ -56,11 +56,13 @@ public class MatrixFrame  extends JFrame{
 
 		Box multiDimBox = new Box(BoxLayout.Y_AXIS);
 		JLabel multiDimLabel = new JLabel("Build Multi-dimensional Plot");
-		multiDimButton = new JButton[3];
+		multiDimButton = new JButton[5];
 
 		multiDimButton[0] = new JButton("Maximize information content");
 		multiDimButton[1] = new JButton("Maximize visual saliency");
 		multiDimButton[2] = new JButton("Maximize both");
+		multiDimButton[3] = new JButton("Minimize information loss");
+		multiDimButton[4] = new JButton("Maximize color effect");
 
 		multiDimBox.add(multiDimLabel);
 
@@ -106,6 +108,20 @@ public class MatrixFrame  extends JFrame{
 
 				matrixView.suggestAxisPairs(MetaMetrics.SumofJointImageEntropy);
 				System.err.println("Reduce both");
+
+			}
+			if(e.getSource() == multiDimButton[3] )
+			{
+
+				matrixView.suggestAxisPairs(MetaMetrics.InformationLoss);
+				System.err.println("Reduce info loss");
+
+			}
+			if(e.getSource() == multiDimButton[4] )
+			{
+
+				matrixView.suggestAxisPairs(MetaMetrics.Color);
+				System.err.println("Suggst color");
 
 			}
 

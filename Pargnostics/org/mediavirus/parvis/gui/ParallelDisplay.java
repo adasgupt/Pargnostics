@@ -866,6 +866,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 	/** Holds value of property currentBrush. */
 	private Brush currentBrush;
 
+	private OptimizationPanel optimizationPanel;
+
 
 	/**
 	 * Fills the preferences hashtable with initial default values.
@@ -1052,6 +1054,19 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 
 	}
 
+	/**
+	 * TODO Put here a description of what this method does.
+	 *
+	 * @param optimizationPanel
+	 */
+	public void setOptimizationReference(OptimizationPanel optimizationPanel) {
+	this.optimizationPanel = optimizationPanel;
+		
+	}
+
+	public OptimizationPanel getOptimizationPanelInstance(){
+		return optimizationPanel;
+	}
 
 
 

@@ -999,12 +999,15 @@ public final class AxisPair {
 		int[] degree = new int[numBins+1];
 
 		int[][] hist2D = get2DHistogram(numBins);
-
+          
+	//	System.err.println("hist2d  " );
 
 		//		HashMap<Integer, List<Integer>> convMap= new HashMap<Integer,List<Integer>>();
 		//		HashMap<Integer, List<Integer>> divMap = new  HashMap<Integer,List<Integer>>();
 
 		for (int i = 0; i < hist2D.length; i++) {
+			
+			
 			for (j = 0; j < hist2D.length; j++) {
 
 				// int countNumLines= hist2D[i][j];
@@ -1091,7 +1094,7 @@ public final class AxisPair {
 
 	public float getSubSpaceConcentration(int numBins, int minThreshold){
 
-
+		initBinning(numBins);
 		startBinNeighborMap = new HashMap<Point2D, ArrayList<Integer>>();
 		// if convergence is true choose the 2nd axis else choose the 1st axis.
 
@@ -1104,7 +1107,7 @@ public final class AxisPair {
 
 		//data.getAxisPair(axis1, axis2, this).initBinning(numBins);
 
-		//	System.err.println(" Test numBins  " +numBins);
+		System.err.println(" Test numBins  " +numBins);
 		int degree[] = new int[numBins+1];
 		//		boolean convergence = model.getAxisPair(axis1, axis2, parallelDisplay).getConvergence_Divergence(numBins, 3);
 		boolean convergence = getConvergence_Divergence(numBins, 3);
@@ -1124,8 +1127,10 @@ public final class AxisPair {
 		//int minThreshold = 30;
 		float startBin = 0;
 		int currentBin=0;
-
+		//System.err.println("Here +++++++++" +degree.length);
 		while( currentBin < degree.length-1){
+			
+			
 
 			// while the bin entries are above a min threshold, keep adding neighbors		
 
@@ -1170,7 +1175,7 @@ public final class AxisPair {
 					chosenAxisAndStartBin.x = chosenAxis;
 					chosenAxisAndStartBin.y = startBin;
 					startBinNeighborMap.put(chosenAxisAndStartBin, neighBorsList);
-					//	System.err.println("Start bin  " + startBin + "Num neighbors " +neighBorsList.size());
+					System.err.println("Start bin  " + startBin + "Num neighbors " +neighBorsList.size());
 
 				}
 				//	 reset neighbors, sparseBins and arraylist and set startBin to current Bin
@@ -1199,7 +1204,7 @@ public final class AxisPair {
 
 		}
 
-		System.err.println(" Number of clumped subspaces  " + startBinNeighborMap.keySet().size());
+		System.err.println(" Size in clumping method +++++++++  " + startBinNeighborMap.keySet().size());
 
 		float sumClumping =0;
 

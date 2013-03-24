@@ -65,7 +65,7 @@ public class OptimizationPanel extends JPanel {
 	private JCheckBox[] maximizers = new JCheckBox[Metrics.values().length];
 	
 	private JComboBox comboBox; 
-	int minThreshold = 20;
+	int minThreshold = 10;
 	//private JSlider sliderBar[]=new JSlider[4];
 	private RangeSlider rangeSliderBar[] = new RangeSlider[4];
 
@@ -330,7 +330,7 @@ public class OptimizationPanel extends JPanel {
 		ButtonHandler clumpingButtonHandler = new ButtonHandler();
 		clumpingButton.addActionListener(clumpingButtonHandler);
 
-		// mainBox.add(clumpingButton);
+		 mainBox.add(clumpingButton);
 
 		RadioButtonHandler radiohandler=new RadioButtonHandler();
 		for(int i=0;i<sliderButton.length;i++)
@@ -743,14 +743,16 @@ public class OptimizationPanel extends JPanel {
 			int dim1 = brushIndex;
 			int dim2 = brushIndex+1;
 
-			if(e.getSource()== clumpingButton)
-				setSubSpaceParametersForBrushing(dim1, dim2, minThreshold);
+			if(e.getSource()== clumpingButton){
+				System.err.println("Clumping button");
+				setSubSpaceParametersForBrushing(parallelDisplay.getHeight(), dim1, dim2, minThreshold);
+			}
 
 
 		}
 	}
 
-	public void setSubSpaceParametersForBrushing(int dim1, int dim2, int minThreshold) {
+	public void setSubSpaceParametersForBrushing(int numBins, int dim1, int dim2, int minThreshold) {
 
 		int brushAxis;
 
@@ -761,7 +763,7 @@ public class OptimizationPanel extends JPanel {
 
 		Iterator iter = clumpingMap.keySet().iterator();
 
-		//System.err.println("SIZE ************************************* " + clumpingMap.keySet().size());
+		System.err.println("SIZE in BRUSHING " + clumpingMap.keySet().size());
 		while(iter.hasNext()){
 
 			Point2D.Float key = (Point2D.Float)iter.next();
@@ -1027,10 +1029,11 @@ public class OptimizationPanel extends JPanel {
 		case 2:
 
 			//commented
-			float avgClumping= data.getUniVariateSubSpaceConcentration(brushIndex, numBins, lowerBrushVal);
+			//float avgClumping= data.getUniVariateSubSpaceConcentration(brushIndex, numBins, lowerBrushVal);
+			float avgClumping= data.getAxisPair(brushIndex, brushIndex+1, parallelDisplay).getSubSpaceConcentration(parallelDisplay.getHeight(), 10);
 
 			if(minThreshold+lowerBrushVal < upperBrushVal)
-				setSubSpaceParametersForBrushing(brushIndex, brushIndex+1, lowerBrushVal);
+				setSubSpaceParametersForBrushing(parallelDisplay.getHeight(), brushIndex, brushIndex+1, 10);
 
 		}
 

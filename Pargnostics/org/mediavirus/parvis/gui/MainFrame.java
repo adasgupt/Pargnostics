@@ -35,7 +35,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-
 import org.mediavirus.parvis.file.STFFile;
 import org.mediavirus.parvis.model.Brush;
 
@@ -50,6 +49,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 	//private static final String INITIALFILENAME = "data/winequality.stf";
 	//	private static final String INITIALFILENAME = "data/abalone.stf";
 	//private static final String INITIALFILENAME = "data/cloud.stf";
+	//private static final String INITIALFILENAME = "data/parkinsons.stf";
 	private static final String INITIALFILENAME = "data/cars.stf";
 
 	DisplayMetricBarsPanel metricsDisplay;
@@ -385,6 +385,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
 		//  add(brushControlPanel, "width 200!");
 
 		add(optimizationPanel, "width 300!");
+		parallelDisplay.setOptimizationReference(optimizationPanel);
 		add(parallelDisplay, "grow, wrap");
 
 		add(optimizationPanel.getButtonBox(), "height ::200");

@@ -36,7 +36,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	 * filledHeight can be different from box height, as metrics guide the coloring, and a box might not be fully colored
 	 */
 	private int filledHeight;
-	private int startX;
+	private int startX=0;
 	private int stepx;
 	private int padding;
 
@@ -66,11 +66,14 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	public enum MetaMetrics{
 
-		JointEntropy, ImageEntropy, SumofJointImageEntropy, GrayEntropy, ColorEntropy, DistanceEntropy, KLDivergence
+		JointEntropy, ImageEntropy, SumofJointImageEntropy, GrayEntropy, ColorEntropy, DistanceEntropy, KLDivergence, InformationLoss, Color
 
 	}
 
 	int lastClicked =-1;
+
+	int lastRow =-1;
+	int lastColumn =-1;
 
 	boolean encodingFilter = false;
 
@@ -98,6 +101,9 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		this.data = data;
 		this.parameterizedDisplay = parameterizedDisplay;
 		currentDrawnList = getListFromAxes(parallelDisplay.axes);
+		metricsList =parameterizedDisplay.getMetricsList();
+		
+		
 
 
 	}
@@ -108,7 +114,9 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 		super.paint(g);
 		Graphics2D ig = (Graphics2D)g;
-
+		
+		ArrayList<ParameterizedDisplay.AxisPairMetrics> paintList = parameterizedDisplay.getMetricsList();
+	
 
 		Graphics2D g2 = (Graphics2D)g; // we need a Graphics2D context
 
@@ -140,13 +148,14 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			boxHeight = getHeight() /data.getNumDimensions()-padding;
 			boxWidth  = getWidth()/ data.getNumDimensions()-padding;
 			numDimensions = parallelDisplay.getNumAxes();
+			
 			for(int row=0;row<data.getNumDimensions();row++) {
 
 				for(int col = 0; col <data.getNumDimensions(); col++) {
 
 					//g.drawLine(startX+(scatterInstanceWidth*(col)),scatterInstanceHeight*row,startX+(scatterInstanceWidth*(col+1)),scatterInstanceHeight*row);
 					//g.drawLine(startX+(scatterInstanceWidth*(col)),scatterInstanceHeight*row, startX+(scatterInstanceWidth*(col)), scatterInstanceHeight*(row+1));
-					
+
 
 
 					if (row == col) {
@@ -173,7 +182,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 						//g.fillRect(arg0, arg1, arg2, arg3)
 					}
 
-					int locX= startX+(boxWidth*(col))+(padding*col);
+					int locX= startX+(boxWidth*col)+(padding*col);
 					int locY= boxHeight*row + (padding*row);
 					//								if(row>col)
 					//								drawScatterplot(g2d, data, scatterInstanceHeight, scatterInstanceWidth, startX, locsX, locsY,row, col);
@@ -187,25 +196,27 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 						filledHeight = boxHeight-2;
 						//0 for left of diagonal
-						Graphics2D g3 = getMetricColor(ig, row, col, 0);
+						Graphics2D g3 = getMetricColor(paintList, ig, row, col, 0);
 						g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
 						if(encodingFilter)
 						{
 							filledHeight = (int)getReducedEncodingHeight(row, col);
 							g3.setColor(Color.white);
 							g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
-							
+
 						}
-
-
+                     
+						System.err.println("Col  " + col);
 					}
 					// Decoding side
 					if(col>row)
 					{
-                        
+
 						filledHeight = boxHeight-2;
 						// 1 for right of diagonal
-						Graphics2D g3 = getMetricColor(ig, col, row, 1);
+						Graphics2D g3 = getMetricColor(paintList, ig, col, row, 1);
+						
+						System.err.println("Row  " + row);
 						g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
 						if(decodingFilter)
 						{
@@ -213,7 +224,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 							filledHeight = (int)getReducedDecodingHeight(col, row);
 							g3.setColor(Color.white);
 							g3.fillRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth-2 , filledHeight);
-							
+
 						}
 
 
@@ -242,19 +253,25 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 					// resetting the stroke after setting a wider stroke for suggesting axis pairs
 					ig.setStroke(new BasicStroke(1));
-					if (lastClicked == row || lastClicked == col) {
 
-						ig.setColor(new Color(160, 40, 30, 100));
-						ig.fillRect( locX, locY, boxWidth, boxHeight);
 
-						//	System.err.println("Yes clicked");
 
-					}
-					
+					//					if (lastClicked == row || lastClicked == col) {
+					//
+					//						ig.setColor(new Color(160, 40, 30, 100));
+					//						ig.fillRect( startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth, boxHeight);
+					//
+					//							System.err.println("padding  " + padding);
+					//							System.err.println("col *****  " + col);
+					//
+					//					}
+
 					//draw borders at the end
 					ig.setColor(Color.lightGray);
 
 					ig.drawRect(startX+(boxWidth*(col)+(padding*col)), boxHeight*(row)+(padding*row), boxWidth , boxHeight );
+
+
 				}
 			}
 		}
@@ -264,68 +281,75 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 
 
-	
+
 	/**
 	 * get sorted list and set up colors for painting
 	 *
 	 */
-	private Graphics2D getMetricColor(Graphics2D g2, int row, int col, int mode) {
+	private Graphics2D getMetricColor(ArrayList<ParameterizedDisplay.AxisPairMetrics> localMetricsListForSorting, Graphics2D g2, int row, int col, int mode) {
 
-		metricsList = parameterizedDisplay.getMetricsList();
+	//	ArrayList<ParameterizedDisplay.AxisPairMetrics> localMetricsListForSorting = new ArrayList(metricsList);
+		//metricsList = parameterizedDisplay.getMetricsList();
+//		if(metricsList!=null)
+//			localMetricsListForSorting = (ArrayList<ParameterizedDisplay.AxisPairMetrics>)metricsList.clone();
 
 		//		for(AxisPairMetrics am: parameterizedDisplay.getMetricsList())
 		//			System.err.println("testing ******** " + am.getDistanceEntropy());
-		int firstQuartile = metricsList.size()/4;
-		int thirdQuartile= (3*metricsList.size())/4;
-
-		if(mode==0)
+		if(localMetricsListForSorting!=null)
 		{
-			Color[] colorPattern0 = {new Color(203, 201, 226), new Color(158, 154, 200), new Color(106, 81, 163)};
+			int firstQuartile = localMetricsListForSorting.size()/4;
+			int thirdQuartile= (3*localMetricsListForSorting.size())/4;
 
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.JointEntropy));
-			for(int index=0; index<metricsList.size(); index++){
-				AxisPairMetrics am = metricsList.get(index);
+			if(mode==0)
+			{
+				Color[] colorPattern0 = {new Color(203, 201, 226), new Color(158, 154, 200), new Color(106, 81, 163)};
 
-				/*
-				 * since low joint entropy is good, we color low joint entropy with a stronger hue, to correspond with 
-				 * 'goodness'
-				 */
-				if(am.getDimension1()==row & am.getDimension2()==col)
-				{
-					if(index<=firstQuartile)
-						g2.setColor(colorPattern0[2]);
+				Collections.sort(localMetricsListForSorting, new SortMetrics(MetaMetrics.JointEntropy));
+				
+				for(int index=0; index<localMetricsListForSorting.size(); index++){
+					AxisPairMetrics am = localMetricsListForSorting.get(index);
 
-					else if(index>firstQuartile && index <= thirdQuartile)
-						g2.setColor(colorPattern0[1]);
-					else if(index>thirdQuartile)
-						g2.setColor(colorPattern0[0]);
+					/*
+					 * since low joint entropy is good, we color low joint entropy with a stronger hue, to correspond with 
+					 * 'goodness'
+					 */
+					if(am.getDimension1()==row & am.getDimension2()==col)
+					{
+						if(index<=firstQuartile)
+							g2.setColor(colorPattern0[2]);
+
+						else if(index>firstQuartile && index <= thirdQuartile)
+							g2.setColor(colorPattern0[1]);
+						else if(index>thirdQuartile)
+							g2.setColor(colorPattern0[0]);
+					}
 				}
 			}
-		}
-		else if(mode==1)
-		{
+			else if(mode==1)
+			{
 
-			Color[] colorPattern1 = {new Color(186, 228, 179), new Color(116, 196, 118), new Color(35, 139, 69)};
-			Collections.sort(metricsList, new SortMetrics(MetaMetrics.ImageEntropy));
-			for(int index=0; index<metricsList.size(); index++){
-				AxisPairMetrics am = metricsList.get(index);
-				if(am.getDimension1()==row & am.getDimension2()==col)
-				{
-					if(index<=firstQuartile)
-						g2.setColor(colorPattern1[0]);
-					else if(index>firstQuartile && index <= thirdQuartile)
-						g2.setColor(colorPattern1[1]);
-					else if(index>thirdQuartile)
-						g2.setColor(colorPattern1[2]);
+				Color[] colorPattern1 = {new Color(186, 228, 179), new Color(116, 196, 118), new Color(35, 139, 69)};
+				Collections.sort(localMetricsListForSorting, new SortMetrics(MetaMetrics.ImageEntropy));
+				
+				for(int index=0; index<localMetricsListForSorting.size(); index++){
+					AxisPairMetrics am = localMetricsListForSorting.get(index);
+					if(am.getDimension1()==row & am.getDimension2()==col)
+					{
+						if(index<=firstQuartile)
+							g2.setColor(colorPattern1[2]);
+						else if(index>firstQuartile && index <= thirdQuartile)
+							g2.setColor(colorPattern1[1]);
+						else if(index>thirdQuartile)
+							g2.setColor(colorPattern1[0]);
+					}
 				}
+
+
 			}
-
-
 		}
-
 		return g2;
-
 	}
+
 
 
 	public static class SortMetrics implements Comparator<AxisPairMetrics>{
@@ -348,7 +372,7 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 			float entropy1 = 0;
 			float entropy2 = 0;
-			
+
 			if(metric==MetaMetrics.ColorEntropy)
 
 			{
@@ -362,8 +386,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 			{
 				//System.err.println("Metric joint entropy");
-				entropy1 = m1.getJointEntropy();
-				entropy2 = m2.getJointEntropy();	
+				entropy1 = 1-(m1.getJointEntropy()/10);
+				entropy2 = 1-(m2.getJointEntropy()/10);	
 
 			}
 			else if(metric == MetaMetrics.ImageEntropy)
@@ -402,6 +426,22 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 				entropy2 = m2.getKLDivergence();
 
 			}
+			else if(metric == MetaMetrics.InformationLoss)
+			{
+
+				//System.err.println("Metric distance entropy");
+				entropy1 = (1-m1.getKLDivergence()/100)+(1-m1.getJointEntropy()/10);
+				entropy2 = (1-m2.getKLDivergence()/100)+(1-m2.getJointEntropy()/10);
+
+			}
+			else if(metric == MetaMetrics.Color)
+			{
+
+				//System.err.println("Metric distance entropy");
+				entropy1 = m1.getWeightedColorEntropy()+m1.getDistanceEntropy();
+				entropy2 = m2.getWeightedColorEntropy()+m2.getDistanceEntropy();
+
+			}
 
 			//	System.err.println("Compared " + entropy1 + " "+ entropy2);
 
@@ -418,17 +458,22 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	public void drawClickedAxes(int axis1, int axis2){
 
 		selectedAxesList = new ArrayList<Integer>();
+		lastRow = axis2;
+		lastColumn =axis1;
 
 		if (lastClicked!=-1 && lastClicked == axis1) {
 			selectedAxesList.add(axis2);
 		}
 
 		if (lastClicked != axis1) {
-			selectedAxesList .add(axis1);
-			selectedAxesList .add(axis2);
+			selectedAxesList.add(axis1);
+			selectedAxesList.add(axis2);
 		}
 
 		lastClicked = selectedAxesList.get(selectedAxesList .size()-1);
+
+
+		System.err.println("Last clicked   ******** "+ lastClicked);
 		repaint();
 		addAxesToDraw(selectedAxesList);
 		removeAxisPairMetricObjects(selectedAxesList);
@@ -490,6 +535,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		for(AxisPairMetrics am: metricsList)
 		{
 
+			System.err.println("Val *********************************************  " +am.getJointEntropy());
+			
 			int dim1 = am.getDimension1();
 			int dim2 = am.getDimension2();
 
@@ -688,8 +735,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		int mousex = e.getX()-10;
-		int mousey = e.getY()-10;
+		int mousex = e.getX()-startX;
+		int mousey = e.getY()-startX;
 
 
 
@@ -737,8 +784,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		repaint();
 
 	}
-	
-	
+
+
 	public void setDecodingFilter() {
 
 
@@ -769,16 +816,16 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 		{
 			AxisPairMetrics am = metricsList.get(index);
 
-
+//penalize high value
 			if(am.getDimension1()==row & am.getDimension2()==col)
 			{
 				if(index<=firstQuartile)
-					newBoxHeight = boxHeight*0.75f;
+					newBoxHeight = boxHeight*0.25f;
 
 				else if(index>firstQuartile && index <= thirdQuartile)
 					newBoxHeight = boxHeight*0.5f;
 				else if(index>thirdQuartile)
-					newBoxHeight = boxHeight*0.25f;
+					newBoxHeight = boxHeight*0.75f;
 			}
 		}
 
@@ -795,16 +842,16 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 	private float getReducedDecodingHeight(int row, int col) {
 
 		ArrayList<AxisPairMetrics> amList =parameterizedDisplay.getMetricsList();
-		Collections.sort(amList, new SortMetrics(MetaMetrics.ColorEntropy));
+		Collections.sort(amList, new SortMetrics(MetaMetrics.DistanceEntropy));
 		int firstQuartile = metricsList.size()/4;
 		int thirdQuartile= (3*metricsList.size())/4;
 
 		float newBoxHeight =0;
-
+//penalize low value
 		for(int index=0; index<metricsList.size(); index++)
 		{
 			AxisPairMetrics am = metricsList.get(index);
-            System.err.println(" Entropy value  " + am.getColorEntropy());
+		//	System.err.println(" Entropy value  " + am.getColorEntropy());
 
 			if(am.getDimension1()==row & am.getDimension2()==col)
 			{

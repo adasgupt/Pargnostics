@@ -78,6 +78,10 @@ class PargnosticsPanel extends JPanel implements MouseListener,MouseMotionListen
 	SortedSet<Integer> axisSet=new TreeSet<Integer>();
 	List<Integer> axisList=new ArrayList<Integer>();
 	int lastClicked =-1;
+	
+	int lastRow =-1;
+	int lastColumn =-1;
+	
 	JRadioButton[] viewButton;
 	JButton[] filterButton;
 	JButton[] sortButton = new JButton[2] ;
