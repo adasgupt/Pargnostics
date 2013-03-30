@@ -868,6 +868,10 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 
 	private OptimizationPanel optimizationPanel;
 
+	private int selectedDim1 =-1;
+
+	private int selectedDim2 =-1;
+
 
 	/**
 	 * Fills the preferences hashtable with initial default values.
@@ -1068,6 +1072,27 @@ public class ParallelDisplay extends JComponent implements ChangeListener, Metri
 		return optimizationPanel;
 	}
 
+	/**
+	 * TODO Put here a description of what this method does.
+	 *
+	 * @param brushIndex
+	 * @param i
+	 */
+	public void setSelectedAxes(int dim1, int dim2) {
+		selectedDim1 =dim1;
+		selectedDim2 =dim2;
+		
+		repaint();
+		
+	}
+	
+	public int getSelectedDim1(){
+		return selectedDim1;
+	}
+
+	public int getSelectedDim2(){
+		return selectedDim2;
+	}
 
 
 }

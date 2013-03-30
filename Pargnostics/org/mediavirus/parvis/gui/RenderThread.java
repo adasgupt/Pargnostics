@@ -322,7 +322,9 @@ class RenderThread extends Thread {
                         //skip soft edges
                         if (!quality && (brush != null) && brushVal < 0.8) continue;
                         if ((brush != null) && quality){
-                            Color col = new Color((int)(color.getRed()*brushVal + bgcol.getRed()*(1-brushVal)), (int)(color.getGreen()*brushVal + bgcol.getGreen()*(1-brushVal)), (int)(color.getBlue()*brushVal + bgcol.getBlue()*(1-brushVal)), (int)(255 * brushVal));
+                            Color col = new Color((int)(color.getRed()*brushVal + bgcol.getRed()*(1-brushVal)), 
+                            		(int)(color.getGreen()*brushVal + bgcol.getGreen()*(1-brushVal)), 
+                            		(int)(color.getBlue()*brushVal + bgcol.getBlue()*(1-brushVal)));
                             //System.out.println("Brush value: " + brushVal + " alpha: " + col.getAlpha());
                           
                         	

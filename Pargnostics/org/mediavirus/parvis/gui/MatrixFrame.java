@@ -120,7 +120,7 @@ public class MatrixFrame  extends JFrame{
 			if(e.getSource() == multiDimButton[4] )
 			{
 
-				matrixView.suggestAxisPairs(MetaMetrics.Color);
+				matrixView.suggestAxisPairs(MetaMetrics.DistanceEntropy);
 				System.err.println("Suggst color");
 
 			}

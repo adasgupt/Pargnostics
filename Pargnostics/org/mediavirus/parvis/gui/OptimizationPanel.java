@@ -1107,6 +1107,7 @@ public class OptimizationPanel extends JPanel {
 	public void setBrushIndex(int i){
 
 		brushIndex=i;
+		parallelDisplay.setSelectedAxes(brushIndex,brushIndex+1);
 
 		System.err.println("Brush Index  "  + brushIndex);
 

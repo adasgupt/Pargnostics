@@ -50,6 +50,8 @@ import org.mediavirus.parvis.gui.analysis.AxisPair;
 import org.mediavirus.parvis.gui.analysis.AxisPair.Metrics;
 import org.mediavirus.parvis.model.Brush;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 /**
  * The UI Delegate, responsible for rendering the ParallelDisplay component.
  * 
@@ -752,18 +754,41 @@ public class BasicParallelDisplayUI extends ComponentUI implements MouseListener
 		float v2 =0;
 		GeneralPath rPath = new GeneralPath();
 		rPath.moveTo(stepx * startAxis, getYValue(num, startAxis, comp));
-
-		v1 = getYValue(num, startAxis, comp);
-		
-		
-
+//        if(comp.getSelectedDim1()==-1)
+//        {
+//		v1 = getYValue(num, 0, comp);
+//		
+//		v2 = getYValue(num, 1, comp);
+//		
+//		//if(startAxis==0)
+//			   g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
+//        }
+//        
+//        else
+//        {
+//        	v1 = getYValue(num, comp.getSelectedDim1(), comp);
+//        	System.err.println("Brushing by     ++++++++++++++++++++++++++++++++++++++++++++++++++++++ "+comp.getSelectedDim1());
+//    		
+//    		v2 = getYValue(num, comp.getSelectedDim2(), comp);
+//    		
+//    		//if(startAxis==0)
+//    			   g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
+//        	
+//        	
+//        	
+//        	
+//        	
+//        }
 		
 		for (int j = startAxis + 1; j <= stopAxis; j++) {
 			v2 = getYValue(num, j, comp);
 			//v2 = getYValue(num, stopAxis, comp);
 			//colorcode
-	//		g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
-		   g2.setColor(new Color(0.5f,0.5f,0.5f, 0.6f));
+	
+		
+		 //   g2.setColor(getRecordColor(v1, v2, parallelDisplay.getHeight()));
+		   
+			 g2.setColor(new Color(0.5f,0.5f,0.5f, 0.6f));
 			
 			rPath.lineTo(stepx * j, getYValue(num, j, comp));
 			

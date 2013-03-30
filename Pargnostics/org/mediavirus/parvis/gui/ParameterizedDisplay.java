@@ -682,15 +682,15 @@ public class ParameterizedDisplay extends JPanel implements MouseListener, Mouse
 
 		metricObject.setDistanceEntropy(computeDistanceEntropy(axis1,axis2));
      	metricObject.setJointEntropy(mainDisplay.getModel().getAxisPair(axis1, axis2, mainDisplay).getJointEntropy((int)param.y));
-	//	metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
-	//	metricObject.setColorEntropy((float)computeEntropy(bufferImg));
+		metricObject.setGrayEntropy((float)computeEntropy(bufferImg));
+		metricObject.setColorEntropy((float)computeEntropy(bufferImg));
 		metricObject.setWeightedColorEntropy(((metricObject.getDistanceEntropy()/100)+(2*(1-(metricObject.getGrayEntropy()/10))))/3);
-       metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
+        metricObject.setKLDivergence(getKLDivergence(axis1, axis2));
 
 		//setUseColor(true);
 		
 //deleted
-	metricObject.storeImage(bufferImg);
+	  metricObject.storeImage(bufferImg);
 
 
 		metricsList.add(metricObject);

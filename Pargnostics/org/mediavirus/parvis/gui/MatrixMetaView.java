@@ -422,8 +422,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			{
 
 				//System.err.println("Metric distance entropy");
-				entropy1 = m1.getKLDivergence();
-				entropy2 = m2.getKLDivergence();
+				entropy1 = 1-(m1.getKLDivergence()/1000);
+				entropy2 = 1-(m2.getKLDivergence()/1000);
 
 			}
 			else if(metric == MetaMetrics.InformationLoss)
@@ -438,8 +438,8 @@ public class MatrixMetaView extends JPanel implements MouseListener, MouseMotion
 			{
 
 				//System.err.println("Metric distance entropy");
-				entropy1 = m1.getWeightedColorEntropy()+m1.getDistanceEntropy();
-				entropy2 = m2.getWeightedColorEntropy()+m2.getDistanceEntropy();
+				entropy1 = m1.getDistanceEntropy();
+				entropy2 = m2.getDistanceEntropy();
 
 			}
 
